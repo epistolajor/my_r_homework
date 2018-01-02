@@ -5,7 +5,12 @@ date: "January 2, 2018"
 output: html_document
 ---
 
-# HomeWork
+# Homework
 
 
 "This is how to upload homework on the Git"
+
+1) Save
+2) Commit
+3) Commit Message
+4) 
