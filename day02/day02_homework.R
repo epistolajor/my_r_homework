@@ -3,24 +3,43 @@
 
 # 1. Read your data set into R
 
+library(readxl)
+
+FantasyFootball2014 <- read_xlsx("../Fantasy Football 2014.xlsx")
+FantasyFootball2015 <- read_xlsx("../Fantasy Football 2015.xlsx")
+
+View(FantasyFootball2014)
+View(FantasyFootball2015)
+# Put quotation mark then shift to go forward
+# Put quotation mark then ../ to go backward
+
 # 2. Peek at the top few rows
+
 
 # 3. Peek at the top few rows for only a few columns
 
+
 # 4. How many rows does your data have?
+
 
 # 5. Get a summary for every column
 
+
 # 6. Get a summary for one column
+
 
 # 7. Are any of the columns giving you unexpected values?
 
+
 # 8. Select a few key columns, make a vector of the column names
+
 
 # 9. Create a new data.frame with just that subset of columns
 
+
 # 10. Create a new data.frame that is just the first 10 rows
 #     and the last 10 rows of the data from the previous step
+
 
 # 11. Create a new data.frame that is a random sample of half of the rows.
 # HINT: ?sample

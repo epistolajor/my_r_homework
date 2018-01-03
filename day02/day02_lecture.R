@@ -311,8 +311,7 @@ library(ggplot2)
 install.packages("tidyverse") # https://www.tidyverse.org/
 
 # update.packages()
-
-
+update.packages()
 
 
 
@@ -324,9 +323,20 @@ install.packages("tidyverse") # https://www.tidyverse.org/
 # naming conflicts
 
 # MASS::select(x)
+If you experience overlap with naming / difficulties with naming
+
 # select(x)
 
 # saving workspaces & objects
+Bad habit because may be unclear to others (this is like ignoring knit)
+
+
+But if you want to save one thing in thing in workspace
+
+
+save(Sepal.Width.Virginica, file = "day02_practice.Rdata")
+save(Sepal.Width.Versicolor, file = "day02_practice.Rdata")
+save(Sepal.Width.Setosa, file = "day02_practice.Rdata")
 
 ########################################
 # PRACTICE TIME!
@@ -339,13 +349,18 @@ install.packages("tidyverse") # https://www.tidyverse.org/
 
 # read.table() family
 ?read.table
+
+Make sure you check arguments here!
+
 # for SPSS
 # old package: `foreign`
 # new package: `haven`
 
 # for Excel: `readxl`
 # install.packages("readxl")
-# library(readxl)
+library(readxl)
+  
+library(readxl)
 
 # Others?
 
