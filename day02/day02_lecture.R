@@ -231,6 +231,9 @@ summary(SleepDataFrame)
        - If R gives you just factors (see: Group) then it thinks these are groups
        - If R gives you just number (see: ID) then it thinks these are just names
 
+
+
+
 ###########
 # Functions
 # - everything in R is an object!
@@ -250,8 +253,24 @@ summary(SleepDataFrame)
 ################
 # Quick practice
 
+VectorOne <- SleepDataFrame[1:5, "extra"]
+VectorTwo <- SleepDataFrame[5:10, "extra"]
+  
+VectorOneCopy <- SleepDataFrame$extra[1:5]
+VectorTwoCopy <- SleepDataFrame$extra[5:10]
+
+ # View(SleepDataFrame)
+
+t.test(VectorOne, VectorTwo) #If you are going to be lazy then you have to be careful, it will assume they are in order if not labeled
+t.test(x = VectorOne, y = VectorTwo)
+
 # using [ ] and <-, pull out some numbers from the sleep data, and compare with t.test
 
+objects()
+
+?t.test()
+
+*In the help file, the equal means what the default. So for t.test where it says y = Null, it means the Y is always assumed as the Null*
 
 
 ###################
@@ -292,6 +311,10 @@ library(ggplot2)
 install.packages("tidyverse") # https://www.tidyverse.org/
 
 # update.packages()
+
+
+
+
 
 ##############
 # Environments
