@@ -8,8 +8,8 @@ library(readxl)
 FantasyFootball2014 <- read_excel("C:/Users/Jordan/Desktop/R Studio Crash Course/Fantasy Football 2014.xlsx", skip = 2)
 FantasyFootball2015 <- read_excel("C:/Users/Jordan/Desktop/R Studio Crash Course/Fantasy Football 2015.xlsx", skip = 2)
 
-FantasyFootball2014_Copy <- read_excel("../Fantasy Football 2014.xlsx")
-FantasyFootball2015_Copy <- read_excel("../Fantasy Football 2015.xlsx")
+#FantasyFootball2014_Copy <- read_excel("../Fantasy Football 2014.xlsx")
+#FantasyFootball2015_Copy <- read_excel("../Fantasy Football 2015.xlsx")
 
 "Put quotation mark press TAB then shift to go forward"
 "Put quotation mark press TAB then ../ to go backward"
@@ -71,15 +71,15 @@ FantasyPoints2015 <- FantasyFootball2015$PPG[FantasyFootball2014$Pos == "WR"]
 ### 9. Create a new data.frame with just that subset of columns
 
 WideRecieverDataFrame <- data.frame(WideRecievers2014,RecievingTargets2014,Receptions2014,RecievingYards2014,RecievingTouchdowns2014,RecievingFirstDowns2014,FantasyPoints2014,FantasyPoints2015)
-View(WideRecieverDataFrame)
+#View(WideRecieverDataFrame)
 
 
 
 ### 10. Create a new data.frame that is just the first 10 rows
 #     and the last 10 rows of the data from the previous step
 
-WideRecieverDataFrame[1:10,]
-WideRecieverDataFrame[51:61,]
+NewWideRecieverFirstFrame <- WideRecieverDataFrame[1:10,]
+NewWideRecieverLastFrame <- WideRecieverDataFrame[51:61,]
 
 
 
@@ -87,8 +87,13 @@ WideRecieverDataFrame[51:61,]
 # HINT: ?sample
 
 ?sample()
-WideRecieverDataFrame_RandomSample <- WideRecieverDataFrame[sample(nrow(WideRecieverDataFrame), 30), ]
-View(WideRecieverDataFrame_RandomSample)
+WideRecieverDataFrame_RandomSample <- WideRecieverDataFrame[sample(nrow(WideRecieverDataFrame), size = 30),]
+
+OR
+
+WideRecieverDataFrame_RandomSample_Copy <- sample(x= nrow(WideRecieverDataFrame), size = nrow(WideRecieverDataFrame)/2, replace = FALSE)
+
+#View(WideRecieverDataFrame_RandomSample)
 "Please go over this one in class, looked up on Google but don't really understand what's going on..."
 
 
@@ -116,7 +121,7 @@ t.test(WideRecieverDataFrame$RecievingTouchdowns2014[WideRecieverDataFrame$Recie
 WR_Top50_FirstDowns_Touchdowns <- WideRecieverDataFrame$RecievingTouchdowns2014[WideRecieverDataFrame$RecievingFirstDowns2014 > 42]
 WR_Bot50_FirstDowns_Touchdowns <- WideRecieverDataFrame$RecievingTouchdowns2014[WideRecieverDataFrame$RecievingFirstDowns2014 < 42]
   
-ttest1 <- t.test(WR_Top50_FirstDowns_Touchdowns,WR_Bot50_FirstDowns_Touchdowns, paired = FALSE)
+ttest1 <- t.test(WR_Top50_FirstDowns_Touchdowns, WR_Bot50_FirstDowns_Touchdowns, paired = FALSE)
 ttest1
 
 WR_Top50_Targets_Touchdowns <- WideRecieverDataFrame$RecievingTouchdowns2014[WideRecieverDataFrame$RecievingTargets2014 > 108]
@@ -125,7 +130,11 @@ WR_Bot50_Targets_Touchdowns <- WideRecieverDataFrame$RecievingTouchdowns2014[Wid
 ttest2 <- t.test(WR_Top50_Targets_Touchdowns,WR_Bot50_Targets_Touchdowns, paired = FALSE)
 ttest2
 
+------------
+Ideally you want to do this by factor
 
+t.test3 <- t.test(Y ~ X, data = dataset)
+  #X is a two factor variable
 
 ### 13. Repeat #12 for TWO more comparisons
 #     - ALTERNATIVELY, if correlations are more interesting,

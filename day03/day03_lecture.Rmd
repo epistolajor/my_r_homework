@@ -8,6 +8,8 @@ output: html_document
 # R Markdown vs. scripts
 Sweave: the original "reproducible document", mix of LaTeX and R
 
+      "Before we were just using scripts"
+
 R Markdown: one of the "cutting edge" formats, especially well-integrated into RStudio, that allows mixing of R code with text, document formatting, links, graphics, etc.
 
 The following is a code chunk, and when `knitr()` is run on this document, it will display both the code and the output.
@@ -30,17 +32,17 @@ More documentation on Markdown and R Markdown:
 # Reading and writing data/files
 ## Weird file types
 Package for reading Excel data:
-  `readxl`
+        `readxl`
 
 Package for other stats packages (SPSS, SAS, Stata):
-  `haven`
+        `haven`
 
 "Tidyverse" package for reading various kinds of data:
-  `readr`
+        `readr`
 
 ## "Reading" .RData
-`save()` saves objects into a file
-`load()` puts objects in your workspace from an `.RData` file
+        `save()` saves objects into a file
+        `load()` puts objects in your workspace from an `.RData` file
 
 ## Look at the options!
 ```{r eval=FALSE}
