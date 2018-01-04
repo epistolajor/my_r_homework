@@ -8,51 +8,58 @@ output: html_document
 ```{r}
 library(readxl) 
 
-FantasyFootball2014 <- read_excel("C:/Users/Jordan/Desktop/R Studio Crash Course/Fantasy Football 2014.xlsx", skip = 2)
-FantasyFootball2015 <- read_excel("C:/Users/Jordan/Desktop/R Studio Crash Course/Fantasy Football 2015.xlsx", skip = 2)
-# Fantasy Football Stats
+FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
+
+# 2014 Fantasy Football Stats
 
 ```
 
 1. Identify a column in your data that *should* be a factor (whether it is or not). Check to see whether R is already treating it as a factor, and if not, convert it into a factor.
 
 ```{r}
-as.factor(FantasyFootball2014$Pos)
-as.factor(FantasyFootball2014$Team)
+FantasyFootball2014$Pos <- as.factor(FantasyFootball2014$Pos)
+FantasyFootball2014$Team <- as.factor(FantasyFootball2014$Team)
 
+"Must assign, if not assigned just shows you what it looks like"
 
-as.factor(FantasyFootball2015$Pos)
-as.factor(FantasyFootball2015$Team)
+summary(FantasyFootball2014)
+
 ```
 
 2. What are the levels of the factor? How many occurrences of each level are there in the data?
    
 ```{r}
-nlevels(FantasyFootball2014$Pos)
-nlevels(FantasyFootball2014$Team)
+levels(FantasyFootball2014$Pos) #3 Levels
+summary(FantasyFootball2014$Pos) #50-RB, 31-TE, WR-61
 
+levels(FantasyFootball2014$Team) #32 Levels
+summary(FantasyFootball2014$Team) #Run code to see how many occurences there are
 
-nlevels(FantasyFootball2015$Pos)
-nlevels(FantasyFootball2015$Team)
-
-#Why does this not work?
 ```
 
 3. Create a new column that is a numeric "version" of the factor column, using `as.numeric()`. Use `xtabs()` to see how the values of these columns line up.
 
 ```{r}
-as.numeric(FantasyFootball2014$Pos)
-as.numeric(FantasyFootball2014$Team)
+FantasyFootball2014$Pos_Num <-  as.numeric(FantasyFootball2014$Pos)
+FantasyFootball2014$Team_Num <-  as.numeric(FantasyFootball2014$Team)
 
+xtabs(~ Pos_Num + Team_Num, FantasyFootball2014)
+xtabs(~ Pos + Team, FantasyFootball2014)
 
-as.numeric(FantasyFootball2015$Pos)
-as.numeric(FantasyFootball2015$Team)
 ```
 
 4. Create another column that is a copy of the factor column. Now, recode this new column so that the factor levels have new names. 
   (e.g., if you have a factor with levels "A" and "B", you could make a new column that had "condition A" and "condition B" as the level names instead)
 
 ```{r}
+
+FantasyFootball2014$Pos_Copy <- FantasyFootball2014$Pos
+
+levels(FantasyFootball2014$Pos_Copy) <- c("A","B","C")
+FantasyFootball2014$Pos_Copy <- factor(FantasyFootball2014$Pos_Copy, levels = c("A", "B", "C"))
+
+levels(FantasyFootball2014$Pos_Copy)
+
 
 ```
 
@@ -63,6 +70,24 @@ as.numeric(FantasyFootball2015$Team)
 
 ```{r}
 
+"relevel"
+FantasyFootball2014$Pos_Copy <- relevel(FantasyFootball2014$Pos_Copy, "C")
+levels(FantasyFootball2014$Pos_Copy)
+#Now C-A-B
+
+
+"reorder"
+FantasyFootball2014$Pos_Copy_Order <- FantasyFootball2014$Pos_Copy
+FantasyFootball2014$Pos_Copy_Order <- reorder(FantasyFootball2014$Pos_Copy, FantasyFootball2014$Pos_Copy_Order)
+FantasyFootball2014$Pos_Copy_Order
+#Having alot of trouble with this function... Not sure if this is doing right thing.
+
+
+"factor"
+FantasyFootball2014$Pos_Copy <- factor(FantasyFootball2014$Pos_Copy, levels = c("B","A","C"))
+levels(FantasyFootball2014$Pos_Copy)
+# Not sure if this is right though... is this Re-Ordering or Re-Naming...?
+
 ```
 
 6. Missing values
@@ -72,6 +97,12 @@ as.numeric(FantasyFootball2015$Team)
   d. If you have any NAs in your data, describe why you think those values are missing. Does there appear to be any systematic relationship between missingness and other variables in your data?
 
 ```{r}
+#6a. No there were no missing values in my Data (Data was cleaned beforehand)
+
+#6b. NA
+#6c. NA
+
+#Would like to go over this still in depth during class
 
 ```
 

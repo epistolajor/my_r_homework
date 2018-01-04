@@ -44,8 +44,16 @@ Package for other stats packages (SPSS, SAS, Stata):
         `save()` saves objects into a file
         `load()` puts objects in your workspace from an `.RData` file
 
+
+## "Skipping Codes"
+        {r eval=FALSE}
+        {r eval=FALSE, cache}
+                     "May only run once, then won't re-knit"
+        
+
+
 ## Look at the options!
-```{r eval=FALSE}
+```{r eval=FALSE,}
 ?read.table
 
 mydata <- read.csv(filename, na.strings = c("NA", "N/A", "n/a", " ", "nuthin"))
@@ -70,39 +78,60 @@ write.table(mydata, file = "outputfile.txt",
 write.csv(mydata, file = "outputfile.csv", row.names = FALSE) # good for writing CSVs
 ```
 
+-----------------------------------------------------------------------------------------
 # Data types
    - numeric
    - logical
    - character
    - factor
-   - NA
+   - NA -------- *Missing Data*
    - NULL
    - others (e.g, "Date")
 
-## Numeric
+###### Numeric
   - numbers!
   - sometimes integers can differ from non-integers
   - `as.numeric()` forces it to be a number (not integers)
   - `1L` is an integer
   - have mean, medians
 
-## Logicals
+###### Logicals
   - TRUE and FALSE
+  
   - if coerced to `as.numeric`, TRUE == 1, FALSE == 0
     - can take the mean of a logical vector
-  - Shortcuts: T and F
-    - *DANGER*: T and F can be overwritten
+    
+              *COERCION: "Tries to change dataset into 1s and 0s"*
+    
+  - Shortcuts: T and F *NEVER DO THIS*
+    - *DANGER*: T and F can be overwritten 
   - logical operators create logical vectors
     - `==`
     - `>`
     - `<`
-    - `|`  This is the "long bar", meaning (inclusive) "or" (aka "pipe")
-    - `&`  == "and"
-    - `>=`  greater or equal
-    - `!`  is NOT
-    - `&&` and `||`  for more specific programming situations
+    
+    
+    *- `|`  This is the "long bar", meaning (inclusive) "or" (aka "pipe")*
+          **- `&`  == "and"**
+          **- `>=`  greater or equal**
+          **- `!`  is NOT**
+          **- `&&` and `||`  for more specific programming situations**
     
 ```{r}
+#Coercion Example
+x < - c(TRUE,TRUE,FALSE,TRUE,FALSE)
+mean(x)
+
+#The answer here is .6 (3/5 of this dataset are TRUEs)
+```
+
+```{r}
+# Logical Operators
+
+3+4
+#Under the Hood
+`+`(3,4)
+
 3 < 4
 
 sleep
@@ -113,16 +142,30 @@ sleep$extra < 0 | sleep$extra > 4
 !sleep$extra < 0
 
 c(1, 2, 3, 4) < c(0, 3, 1, 5)
+c(1,2) < c(0,3,1,5) #It will re-use 1,2 to match length of longer vector
 
-which(sleep$extra > 0)
-sleep$extra[sleep$extra > 0]
+
+which(sleep$extra > 0) #Shows the rows where values in extra column greater than 0
+sleep$extra[sleep$extra > 0] #Shows the values in extra column greater than 0
+
+```
+
+```{r}
+"Iris Dataset Example"
 
 iris[iris$Species == "setosa" | iris$Sepal.Length > 5, ]
+    "Setosa or Sepal greater than 5"
+
+    
+"Example of treating non-logical vector (i.e. name or categorical) as a logical vector"
 
 wrong.way <- iris[iris$Species == c("setosa", "virginica"), ] # does not work like you want it to
 nrow(wrong.way)
 
 right.way <- iris[iris$Species %in% c("setosa", "virginica"), ]
+
+     #%in%#   *%in%*  "Isolates setosa & virginica data"
+
 nrow(right.way)
 
 not.in <- iris[!iris$Species %in% c("setosa", "virginica"), ]
@@ -136,13 +179,17 @@ iris[!iris$Species == "setosa", ]
   - more primitive than factors
   - can manipulate with regular expressions, other text functions
   
-## Factors
+##### Factors #####
+
   - Actually numbers under the hood
   - Act like numbers + labels
+  
+          ***"Great for Groupings"***
+  
   - VERY useful for many kinds of analyses
   - if a column is a *property* of data (not a measure itself), factors are usually best
-    - groupings = good as factors
-    - conditions = good as factors
+        - groupings = good as factors
+        - conditions = good as factor
   - if a column is *data*, maybe consider keeping it a string
     - free response answers = bad as factors
   - `as.factor()` coerces to a factor
@@ -155,12 +202,24 @@ iris[!iris$Species == "setosa", ]
 scott <- read.csv("../scottdata/CognitionPaperFinalData.csv")
 summary(scott$Merged)
 summary(as.character(scott$Merged))
+
+
 levels(scott$Merged)
-levels(scott$Merged) <- c("Unmerged", "Merged") # only changing the labels
+levels(scott$Merged) <- c("Unmerged", "Merged") # only changing the labels [Manually]
 levels(scott$Merged)
-levels(scott$Merged) <- c("Merged", "Unmerged") # only changing the labels
+levels(scott$Merged) <- c("Merged", "Unmerged") # only changing the labels [Manually]
 scott$Merged <- factor(scott$Merged, levels = c("Unmerged", "Merged"))
 
+
+****
+  "Trying to isolate to virginica and versicolor data only"
+my.iris.nosetosa <- my.iris[my.iris$Species != "setosa",]
+my.iris.nosetosa <- my.iris[my.iris$Species == "virginica" | my.iris$Species == "versicolor",]
+my.iris.nosetosa <- my.iris[my.iris$Species %in% c("virginica","versicolor"),]
+****
+
+  
+  
 # relevel()
 # takes the level specified and moves it to the front
 scott$Merged <- relevel(scott$Merged, "Merged")
@@ -228,7 +287,11 @@ summary(factor(scott$Merged, levels = c("Unmerged", "Merged")))
 ```
 
 ## NA and NULL (and others)
-  - `NA` mean "missing value" or "missing data"
+  - `NA` mean "missing value" or "missing data
+         *** "Many times cannot run" ***
+  
+  
+  
   - `NULL` means "nothing", the absence of something
   - `Inf` and `-Inf`
   - `NaN`
