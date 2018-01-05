@@ -56,10 +56,13 @@ xtabs(~ Pos + Team, FantasyFootball2014)
 FantasyFootball2014$Pos_Copy <- FantasyFootball2014$Pos
 
 levels(FantasyFootball2014$Pos_Copy) <- c("A","B","C")
-FantasyFootball2014$Pos_Copy <- factor(FantasyFootball2014$Pos_Copy, levels = c("A", "B", "C"))
-
 levels(FantasyFootball2014$Pos_Copy)
 
+xtabs(~ Pos + Pos_Copy, FantasyFootball2014)
+
+
+
+# FantasyFootball2014$Pos_Copy <- factor(FantasyFootball2014$Pos_Copy, levels = c("A", "B", "C")) --- THIS IS WRONG (THIS JUST REORDERS)
 
 ```
 
@@ -75,18 +78,24 @@ FantasyFootball2014$Pos_Copy <- relevel(FantasyFootball2014$Pos_Copy, "C")
 levels(FantasyFootball2014$Pos_Copy)
 #Now C-A-B
 
+#This will be used for graphing
 
 "reorder"
 FantasyFootball2014$Pos_Copy_Order <- FantasyFootball2014$Pos_Copy
 FantasyFootball2014$Pos_Copy_Order <- reorder(FantasyFootball2014$Pos_Copy, FantasyFootball2014$Pos_Copy_Order)
-FantasyFootball2014$Pos_Copy_Order
+levels(FantasyFootball2014$Pos_Copy_Order)
 #Having alot of trouble with this function... Not sure if this is doing right thing.
 
 
 "factor"
-FantasyFootball2014$Pos_Copy <- factor(FantasyFootball2014$Pos_Copy, levels = c("B","A","C"))
+FantasyFootball2014$Pos_Copy_Factor <- factor(FantasyFootball2014$Pos_Copy, levels = c("B","A","C"))
 levels(FantasyFootball2014$Pos_Copy)
 # Not sure if this is right though... is this Re-Ordering or Re-Naming...?
+# How to check if they are re-naming
+
+xtabs(~ Pos_Copy + Pos_Copy_Factor, FantasyFootball2014)
+#ALWAYS JUST CHECK YOUR WORK AND MAKE SURE CODE WORKING PROPERLY
+
 
 ```
 
@@ -102,7 +111,9 @@ levels(FantasyFootball2014$Pos_Copy)
 #6b. NA
 #6c. NA
 
-#Would like to go over this still in depth during class
+#scottdata[is.na(scottdata$CorpusName4),]
+"This will check if any NA's exist"
 
+#I am also interested in a couple key functions of how to replace NA's (All I am familiar with is mean imputation and case deletion)
 ```
 

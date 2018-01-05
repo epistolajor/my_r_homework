@@ -1,0 +1,100 @@
+---
+title: "Day 4 Practice"
+output: html_document
+---
+
+1. What are the four primary/basic data types in R?
+   - Practice creating a vector of each data type
+   - Using c(), concatenate pairs of these vectors together
+   - What happens?  What data types are coerced to what?
+
+```{r}
+
+#Numeric - Numbers
+NumericVector <- as.numeric(c(1,2,3,4,5))
+NumericVector
+    class(NumericVector)
+
+
+#Logical - True/False
+LogicalVector <- as.logical(c(T,F,T,T,F,F))
+LogicalVector
+    class(LogicalVector)
+
+
+#Characters - Just Name no Level
+CharacterVector <- as.character(c("Yes","Good","Bad","No","Seahawks","Playoffs","Russell Wilson","Fire Bevell"))
+CharacterVector
+    class(CharacterVector)
+
+
+#Factors - Names but referring to Condition Level
+FactorVector <- as.factor(c("Xanax", "Placebo", "Marijuana"))
+FactorVector
+    class(FactorVector)
+
+
+#Coercing - See coverts these different vectors into different tyoes of data
+    c(NumericVector, LogicalVector)
+    c(CharacterVector, NumericVector)
+    c(FactorVector, CharacterVector)
+    c(FactorVector, NumericVector)
+    
+        #Character > Numeric > Logical > Factor?
+    
+```
+
+2. Make a copy of the `iris` data frame
+  - Using `sample()` pull the data apart into two random batches
+  - Put the pieces back together with `rbind()`
+  - Put the pieces back together with `bind_rows()` from the `dplyr` package, creating an ID that keeps track of which piece is which
+  
+  
+```{r}
+#2
+iris_Copy <- iris
+
+#2a
+iris_Copy_First50 <-  sample(x= nrow(iris_Copy), size = nrow(iris_Copy)/2, replace = FALSE)
+iris_Copy_Last50  <-  sample(x= nrow(iris_Copy), size = nrow(iris_Copy)/2, replace = FALSE)
+
+#2b
+iris_Copy_Sample <- rbind(iris_Copy_First50, iris_Copy_Last50)
+
+#2c
+library(dplyr)
+bind_rows(iris_Copy_Sample)
+
+
+```
+
+3. Make a copy of the `iris` data frame
+  - using [ , ] notation, pull the data frame into two sets of different columns
+  - Put the pieces back together with `cbind()`
+  - Put the pieces back together with `bind_cols()` from the `dplyr` package
+
+```{r}
+
+
+```
+
+4. Run the following code to create a new small data frame with some additional information about iris species
+
+```{r}
+iris.info <- data.frame(Plant = c("setosa", "virginica", "limniris"),
+                        State = c("Alaska", "Tennessee", "Louisiana"),
+                        Rating = c(1, 5, 15))
+```
+
+Now merge this information with the `iris` data to create a new data frame. Using the `merge()` function, experiment with all = TRUE and all = FALSE. Also experiment with the `dplyr` join functions:
+  - `inner_join()`
+  - `full_join()`
+  - `left_join()`
+  - `right_join()`
+  - `semi_join()`
+  - `anti_join()`
+  
+```{r}
+
+```
+
