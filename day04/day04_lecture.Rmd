@@ -37,48 +37,55 @@ class(FantasyFootball2014$Team)
 # Lists
   - similar to vectors
   - can contain different data types
+        *LISTS ARE HUGE BECAUSE THEY CAN CONTAIN DIFFERENT DATA TYPES*
+  
   - use [[ ]] to pull out values
   - handy for glomming large/complex objects together
   
 ```{r}
-x <- c(1, 2, 3, 4, 5)
-x
-y <- c(1, "George", as.Date("2017-01-12"), factor("level1"))
-y
-z <- list(1, "George", as.Date("2017-01-12"), factor("level1"), 1:100, head(sleep))
-z
-lapply(z, class)
+Numeric <- c(1, 2, 3, 4, 5)
+Numeric
+CoercedCharacter <- c(1, "George", as.Date("2017-01-12"), factor("level1"))
+CoercedCharacter
+List <- list(1, "George", as.Date("2017-01-12"), factor("level1"), 1:100, head(sleep))
+List
+lapply(List, class)
 
-z[6]
-class(z[6])
-class(z[[6]])
-names(z) 
-names(z) <- c("num", "name", "date", "factor", "values", "data")
-z["data"]
-z[["data"]]
-z$data
-length(z)
+List[6]
+class(List[6]) #Says this is a list (i.e. dataframe part of the list)
+class(List[[6]]) #If you want what is inside the list (dataframe is inside the list)
+
+
+names(List) 
+names(List) <- c("num", "name", "date", "factor", "values", "data")
+
+List["data"] #STill gives us back a list
+List[["data"]] #This gives the data part of the list specifically
+List$data #This does the same as the function above
+length(List)
 
 summary(head(mysleep))
-summary(z[6])
-summary(z[[6]])
-summary(z$data)
+summary(List[6])
+summary(List[[6]])
+summary(List$data)
 #  $ is the same as [[ ]]
 
 # data.frames are (special) lists
-sleep[, "extra"]
-sleep["extra"]
-sleep[["extra"]]
-class(sleep[, "extra"])
-class(sleep$extra)
-class(sleep[["extra"]])
-class(sleep["extra"])
+    #Think of dataframes as a list of columns, a list is even bigger
+sleep["extra"] #this brings the column
+sleep$extra #this brings the data in the column
+sleep[["extra"]] #this brings the data in the column
 
-length(sleep)
-nrow(sleep)
+class(sleep$extra) #this is the type inside the extra column
+class(sleep[["extra"]]) #this is the type inside the extra column
+class(sleep["extra"]) #this is the type of sleep[extra]
 
-identical(sleep$extra, sleep["extra"])
-identical(sleep$extra, sleep[["extra"]])
+length(sleep) #treats it like a list, not what we want
+length(sleep$extra) #will give you length of this variable, but what if data frame has unequal n's?
+nrow(sleep) #this will give you length of this dataset
+
+identical(sleep$extra, sleep["extra"]) #is sleep$extra (the column) the same as sleep$extra (dataframe) - FALSE
+identical(sleep$extra, sleep[["extra"]]) #is sleep$extra(the column) the same as sleep$extra (the column) - TRUE
 
 ```
 
@@ -92,6 +99,8 @@ identical(sleep$extra, sleep[["extra"]])
   - sometimes it's other stuff
   - `cor()` use = "pairwise.complete.obs"
   - no universal "deal with NAs" argument
+          *pairwise.complete.obs () - this will ignore missing for correlations*
+          *na.rm = TRUE (this will ignore missing)*
   
 ```{r}
 x <- c(1, 2, NA, 4, 68)
@@ -115,8 +124,10 @@ is.na(x)
 ```{r}
 x <- c(1, 2, NA)
 y <- c(1, 2, NULL)
-x
-y
+x #this includes the missing value
+y #this does not include the value (absence not missing)
+
+
 length(x)
 length(y)
 x <- 1:10
@@ -166,16 +177,22 @@ is.na(NA)
 
 ```
 
-# Data manipulation
+# Differences in Errors and Warnings
+"R will not run if there is Error, Warning is where it will run but it may be doing it incorrectly"
+
+
+---------------------------------------------------------------------------------------------------
+# DATA MANIPULATION
 
 ## Combining data frame objects
 ### `rbind()` and `cbind()`
-  - `rbind()`
+  - *`rbind()*`
     - glues rows on top of each other
     - expects same columns
-  - `cbind()`
+  - *`cbind()`*
     - glues columns next to each other
     - need to be the same length
+    
   - from `dplyr`
     - `bind_rows()` is better at allowing different sets/orders of columns
       - also gives you the option to "id" the the pieces you're putting together
@@ -186,14 +203,21 @@ is.na(NA)
 library(dplyr)
 sleep1 <- droplevels(sleep[sleep$group == "1",  ])
 sleep2 <- droplevels(sleep[sleep$group == "2",  ])
+
 summary(sleep1)
 summary(sleep2)
 sleep.reassembled <- rbind(sleep1, sleep2)
-summary(sleep.reassembled)
+summary(sleep.reassembled) #no problem! data remains the same because data is identical
+sleep.reassembled2 <- bind_rows(sleep1, sleep2) #will combine but now it changed the type of data
+summary(sleep.reassembled2) #see now its not a factor anymore but a chracter 
 
-sleep.reassembled2 <- bind_rows(sleep1, sleep2)
-summary(sleep.reassembled2)
+"bind rows is figidity, because it wants you to make sure the factors are indentical"
+"if you are putting data together that have same factor, but make sure there are same number of levels"
 
+```
+
+**THIS IS ACTUALLY WORTH DOING**
+```{r}
 sleep1$noise <- rnorm(10)
 
 sleep.reassembled <- rbind(sleep1, sleep2)
@@ -202,6 +226,13 @@ summary(sleep.reassembled)
 sleep.reassembled2 <- bind_rows(sleep1, sleep2)
 summary(sleep.reassembled2)
 
+"rbind wont let us because number of rows are different"
+"bind_rows will let us and will put different number of rows as NA --->good for adding on to a dataset (i.e. maybe its taking some time to collect data, waiting on data from another condition."
+
+```
+
+```{r}
+
 sleep.left <- sleep[, 1:2]
 sleep.left
 sleep.ID <- sleep[, 3]
@@ -209,24 +240,7 @@ sleep.ID
 sleep.reassembled.2 <- cbind(sleep.left, sleep.ID)
 sleep.reassembled.2
 
-sleep.ID <- as.data.frame(sleep[, 3])
-sleep.ID
-
-sleep.reassembled.2 <- cbind(sleep.left, sleep.ID)
-sleep.reassembled.2
-
-sleep.ID <- as.data.frame(sleep[3])  # or sleep["ID"]
-sleep.ID
-
-sleep.reassembled.2 <- cbind(sleep.left, sleep.ID)
-sleep.reassembled.2
-
-sleep.reassembled.3 <- cbind(list(sleep.left, sleep.ID))
-sleep.reassembled.3
-
-sleep.reassembled.4 <- bind_cols(list(sleep.left, sleep.ID))
-sleep.reassembled.4
-
+"splitting data and then putting the data back together"
 ```
 
 # Merging with `merge()`
@@ -237,16 +251,29 @@ subject.info
 subject.info2 <- data.frame(subject = 3:12, gender = c("male", "male", "female", "female", "female", "female", "male", "female", "male", "male"))
 subject.info2
 
-cbind(sleep, subject.info) # not what we want
+cbind(sleep, subject.info) # not what we want, it puts them together but doesn't link them.
+#what we need to do is Merge
+```
 
+```{r}
 
 sleep.merged1 <- merge(x = sleep, y = subject.info,
                        by = "ID")
+          "By is what the datasets have in common (by = *name*) for fantasy dataset"
+
+
 sleep.merged1
 # if your columns are named different things
 sleep.merged2 <- merge(x = sleep, y = subject.info2,
                        by.x = "ID", by.y = "subject")
+                        "if columns are named different"
+                            #by.x
+                            #by.y
+
 sleep.merged2
+```
+
+```{r}
 
 # when you have a column that's named the same in both,
 # R uses that column to merge (by default)
@@ -254,8 +281,9 @@ sleep.merged <- merge(sleep, subject.info)
 ?merge
 sleep
 sleep.merged
-nrow(sleep)
-nrow(sleep.merged)
+nrow(sleep) #All Data
+nrow(sleep.merged) #NAs (after missing)
+
 
 mysleep <- sleep
 # when merging by a factor, BE CAREFUL, especially when
@@ -264,6 +292,8 @@ mysleep$ID <- as.numeric(mysleep$ID)
 
 
 sleep.merged2 <- merge(mysleep, subject.info, all = TRUE)
+    "All = TRUE - shows missing values"
+    "All = FAlse - does not show missing values"
 sleep.merged2
 
 ```
@@ -276,7 +306,7 @@ sleep.cleanedup <- unique(sleep.double)
 
 unique(sleep$ID)
 unique(c(1, 2, 2, 4, 5, 5, 6))
-
+      #only see unique values
 ```
 
 Merging notes:

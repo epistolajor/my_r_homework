@@ -18,4 +18,9 @@ output: html_document
 
 ```{r}
 
+FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2014.xlsx")
+FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2015.xlsx")
+
+#These datasets have the same number of rows but different lengths
+
 ```
