@@ -63,7 +63,7 @@ iris_Copy_Sample <- rbind(iris_Copy_First50, iris_Copy_Last50)
 
 #2c
 library(dplyr)
-bind_rows(iris_Copy_Sample)
+
 
 
 ```
@@ -89,7 +89,7 @@ iris.info <- data.frame(Plant = c("setosa", "virginica", "limniris"),
 Now merge this information with the `iris` data to create a new data frame. Using the `merge()` function, experiment with all = TRUE and all = FALSE. Also experiment with the `dplyr` join functions:
   - `inner_join()`
   - `full_join()`
-  - `left_join()`
+  - `left_join()` - 
   - `right_join()`
   - `semi_join()`
   - `anti_join()`

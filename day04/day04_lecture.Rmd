@@ -261,8 +261,9 @@ sleep.merged1 <- merge(x = sleep, y = subject.info,
                        by = "ID")
           "By is what the datasets have in common (by = *name*) for fantasy dataset"
 
-
 sleep.merged1
+
+
 # if your columns are named different things
 sleep.merged2 <- merge(x = sleep, y = subject.info2,
                        by.x = "ID", by.y = "subject")

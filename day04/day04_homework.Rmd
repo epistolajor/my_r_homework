@@ -16,11 +16,37 @@ output: html_document
   - Use binding/merging commands to accomplish this
   - Complete at least ONE example of binding and ONE example of merging
 
+
+This opens the Excel Sheets
 ```{r}
+library(readxl) 
 
-FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2014.xlsx")
-FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2015.xlsx")
-
-#These datasets have the same number of rows but different lengths
+FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FantasyFootball2015 <- read_excel("../Datasets/Fantasy Football 2015.xlsx", skip = 2)
 
 ```
+
+Lets try to combines these two Data sets into one
+```{r}
+# Combining these two Data sets into one
+
+library(dplyr)
+
+FantasyFootball_2014x2015 <- bind_cols(FantasyFootball2014, FantasyFootball2015)
+View(FantasyFootball_2014x2015)
+
+
+
+# Splitting Data into Two then Putting it Back Together
+
+FantasyFootball_Left <- FantasyFootball_2014x2015[1:30]
+FantasyFootball_Right <- FantasyFootball_2014x2015[31:59]
+
+FantasyFootball_Combine <- cbind(FantasyFootball_Left, FantasyFootball_Right)
+FantasyFootball_Combine
+
+
+```
+
+#Questions
+    *How would you combine by columns if there is a differing number of rows*
