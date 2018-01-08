@@ -171,6 +171,8 @@ head(who.long)
 
 ```{r}
 library(dplyr)
+
+#install.packages("reshape2")
 library(reshape2)
 
 myff <- french_fries
@@ -200,10 +202,14 @@ ff.summaries
   - very commonly used in `dplyr`
 
 ```{r}
+#install.packages("magrittr")
+library(magrittr)
+
 x <- 1:10
 mean(log(x + 2))
 
 (x + 2) %>% log() %>% mean()
+#first I do this, then take log of this then take mean of this
 
 summarize(group_by(myff.long, treatment, flavor), mean.rating = mean(rating, na.rm = TRUE))
 
@@ -220,6 +226,8 @@ group_by(myff.long, treatment, flavor) %>% summarize(mean.rating = mean(rating, 
 sleep
 sleep[sleep$group == 1, ]
 filter(sleep, group == 1) # same results
+        # assumes everything is coming from this dataframe, don't need to re-reference like what I've been doing previously
+        # needs to be a dataframe
 
 sleep[sleep$group == 1 & sleep$extra > 0.2, ]
 filter(sleep, group == 1, extra > 0.2) # same results

@@ -6,12 +6,75 @@ output: html_document
 0. Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
 
 ```{r}
+library(readxl)
 
+FantasyFootball2014 <- read_excel("../../my_r_homework/Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FantasyFootball2015 <- read_excel("../../my_r_homework/Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+head(FantasyFootball2014)
+head(FantasyFootball2015)
+
+#summary(FantasyFootball2014)
+FantasyFootball2014$Pos <- as.factor(FantasyFootball2014$Pos)
+FantasyFootball2014$Team <- as.factor(FantasyFootball2014$Team)
+
+FantasyFootball2015$Pos <- as.factor(FantasyFootball2015$Pos)
+FantasyFootball2015$Team <- as.factor(FantasyFootball2015$Team)
+#summary(FantasyFootball2014)
+#summary(FantasyFootball2015)
 ```
 
 1. Aggregate (e.g., get mean/median/max/something) of some numerical variable, over one or more factors.  Use `group_by()` plus `summarize()` from the `dplyr` package. You may or may not need to reshape the data first!
 
 ```{r}
+library(dplyr)
+
+#Create Position Analysis Dataframe
+#FantasyFootball2014x2015 <- merge(FantasyFootball2014, FantasyFootball2015, by = "Player")
+FantasyFootball2014x2015 <- cbind(FantasyFootball2014, FantasyFootball2015)
+    #View(FantasyFootball2014x2015)
+
+
+Position.Analysis <- data.frame(FantasyFootball2014x2015$Player, FantasyFootball2014x2015$Pos, FantasyFootball2014x2015$DP, FantasyFootball2014x2015$`1st`, FantasyFootball2014x2015$Yds, FantasyFootball2014x2015$TD, FantasyFootball2014x2015$`1st__1`,FantasyFootball2014x2015$Yds__1, FantasyFootball2014x2015$TD__1, FantasyFootball2014$PPG, FantasyFootball2015$PPG)
+
+names(Position.Analysis) <- c("Player", "Position", "Downs Played", "1st Downs Rushing", "Yards Rushing", "Touchdowns Rushing", "1st Downs Recieving", "Yards Recieving", "Touchdowns Recieving", "2014 PPG", "2015 PPG")
+#head(Position.Analysis)
+
+#View(Position.Analysis)
+
+#Aggregate Data
+      #Total Number of First Downs by Position (2014) (Rushing + Recieving)
+      #Total Number of Yards by Position (2014) (Rushing + Recieving)
+      #Total Number of Touchdowns by Position (2014) (Rushing + Recieving)
+
+Position.Analysis$Total.First.Downs <- (Position.Analysis$`1st Downs Rushing` + Position.Analysis$`1st Downs Recieving`)
+Position.Analysis$Total.Yards <- (Position.Analysis$`Yards Rushing` + Position.Analysis$`Yards Recieving`)
+Position.Analysis$Total.Touchdowns <- (Position.Analysis$`Touchdowns Rushing` + Position.Analysis$`Touchdowns Recieving`)
+
+      #Median Number of total First downs by Position (2014)
+      #Median Number of Yards by Position (2014)
+      #Median Number of touchdowns by Position (2014)
+
+#Position.Analysis$Median.1st <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
+#Position.Analysis$Median.Yrds <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
+#Position.Analysis$Median.Tds <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
+
+"Replacement has 140 rows, data has 141??? How do I fix this?"
+
+
+#Alternative Method for Getting this Median Aggregate Information
+
+A1 <- median(Position.Analysis$Total.First.Downs[Position.Analysis$Position == "RB"])
+A2 <- median(Position.Analysis$Total.First.Downs[Position.Analysis$Position == "WR"])
+A3 <- median(Position.Analysis$Total.First.Downs[Position.Analysis$Position == "TE"])
+
+B1 <- median(Position.Analysis$Total.Yards[Position.Analysis$Position == "RB"])
+B2 <- median(Position.Analysis$Total.Yards[Position.Analysis$Position == "WR"])
+B3 <- median(Position.Analysis$Total.Yards[Position.Analysis$Position == "TE"])
+
+C1 <- median(Position.Analysis$Total.Touchdowns[Position.Analysis$Position == "RB"])
+C2 <- median(Position.Analysis$Total.Touchdowns[Position.Analysis$Position == "WR"])
+C3 <- median(Position.Analysis$Total.Touchdowns[Position.Analysis$Position == "TE"])
 
 ```
 
@@ -22,17 +85,32 @@ output: html_document
   
 ```{r}
 
+#Describe the Correlations between 2014 & 2015 Fantasy Points Per Game and 1st Downs for Runningbacks. Are these correlations significant?
+cor(Position.Analysis$`2014 PPG`[Position.Analysis$Position == "RB"],Position.Analysis$Total.First.Downs[Position.Analysis$Position == "RB"] )
+cor.test(Position.Analysis$`2014 PPG`[Position.Analysis$Position == "RB"],Position.Analysis$Total.First.Downs[Position.Analysis$Position == "RB"] )
+cor(Position.Analysis$`2015 PPG`[Position.Analysis$Position == "RB"],Position.Analysis$Total.First.Downs[Position.Analysis$Position == "RB"] )
+cor.test(Position.Analysis$`2015 PPG`[Position.Analysis$Position == "RB"],Position.Analysis$Total.First.Downs[Position.Analysis$Position == "RB"] )
+
+"Strong Positive Correlation for 2014 1st Downs for Runningbacks and 2014 Fantasy Points. Weak Correlation for 2014 1st Downs for Runningacks and 2015 Fantasy Points"
+
+
+#Multiple Regression Analysis for aforementioned predictors of Fantasy Points per Game 2015
+  
+colnames(Position.Analysis)
+
+Predictors.2015.FPG <- lm(`2015 PPG` ~ `2014 PPG` + `Downs Played` + `Total.First.Downs` + `Total.Yards` + `Total.Touchdowns`, data = Position.Analysis)
+summary(Predictors.2015.FPG)
+
+"Very interesting. Only significant predictor for Fantasy Points for the upcoming 2015 season is Fantasy Points from 2014 Season. I assume this is the case however because of multicollinearity between the predictors. Need to transform this data in future analyses."               
 ```
 
 3. Get your data into "long" (aka "tidy") format, if it isn't already
 
 ```{r}
+library(tidyverse)
 
+Position.Analysis.long <- gather(Position.Analysis, Variables, Position, `Downs Played`:`Median.TDs`)
+View(Position.Analysis.long)
 ```
-
-
-
-
-
 
 
