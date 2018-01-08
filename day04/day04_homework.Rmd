@@ -33,8 +33,7 @@ Lets try to combines these two Data sets into one
 library(dplyr)
 
 FantasyFootball_2014x2015 <- bind_cols(FantasyFootball2014, FantasyFootball2015)
-View(FantasyFootball_2014x2015)
-
+#View(FantasyFootball_2014x2015)
 
 
 # Splitting Data into Two then Putting it Back Together
@@ -44,9 +43,57 @@ FantasyFootball_Right <- FantasyFootball_2014x2015[31:59]
 
 FantasyFootball_Combine <- cbind(FantasyFootball_Left, FantasyFootball_Right)
 FantasyFootball_Combine
+```
+
+**Review of Merge Function**
+```{r}
+
+```
+
+
+```{r}
+# Split Data into Chunks then Add some New Information
+
+        #Lets Look at Running Backs Only
+
+        #Runningbacks 2014 Data
+Runningbacks_2014 <- cbind.data.frame(FantasyFootball_2014x2015$Player[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$Att[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$Yds[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$TD[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$`1st`[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$`Fan Pts`[FantasyFootball_2014x2015$Pos == "RB"],FantasyFootball_2014x2015$PPG[FantasyFootball_2014x2015$Pos == "RB"])
+
+        #Runningbacks 2015 Data
+Runningbacks_2015 <- cbind.data.frame(FantasyFootball_2014x2015$Player[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$Att1[FantasyFootball_2014x2015$Pos == "RB"],  FantasyFootball_2014x2015$Yds1[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$TD1[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$`1st1`[FantasyFootball_2014x2015$Pos == "RB"], FantasyFootball_2014x2015$`Fan Pts1`[FantasyFootball_2014x2015$Pos == "RB"],FantasyFootball_2014x2015$PPG1[FantasyFootball_2014x2015$Pos == "RB"])
+
+
+        #Merge 2014 x 2015 Data into One Dataset
+Runningbacks_2014x2015 <- merge(x = Runningbacks_2014, y = Runningbacks_2015, by = "FantasyFootball_2014x2015$Player[FantasyFootball_2014x2015$Pos == ")
+View(Runningbacks_2014x2015)
+             
+                
+        #Adding Yards Per Carry Data
+
+A1 <- FantasyFootball_2014x2015$Yds[FantasyFootball_2014x2015$Pos == "RB"]
+A2 <- FantasyFootball_2014x2015$Att[FantasyFootball_2014x2015$Pos == "RB"]
+
+Runningbacks_2014_YPC <- (A1 / A2)
+Runningbacks_2014_YPC
+
+B1 <- FantasyFootball_2014x2015$Yds1[FantasyFootball_2014x2015$Pos == "RB"]
+B2 <- FantasyFootball_2014x2015$Att1[FantasyFootball_2014x2015$Pos == "RB"]
+
+Runningbacks_2015_YPC <- (B1 / B2)
+
+
+       #Merge YPC Function into One Dataset
+Runningbacks_2014x2015_YPC <- cbind.data.frame(FantasyFootball_2014x2015$Player[FantasyFootball_2014x2015$Pos == "RB"], Runningbacks_2014_YPC, Runningbacks_2015_YPC)
+
+Runningback_complete <- merge(x = Runningbacks_2014x2015, y = Runningbacks_2014x2015_YPC, by = "FantasyFootball_2014x2015$Player[FantasyFootball_2014x2015$Pos == ")
+View(Runningback_complete)
 
 
 ```
 
+
+
+                        
 #Questions
     *How would you combine by columns if there is a differing number of rows*
+          "A: Use merge function then merge columns by shared column name"
