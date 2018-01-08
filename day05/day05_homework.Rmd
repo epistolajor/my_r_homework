@@ -3,7 +3,7 @@ title: "Day 5 Homework"
 output: html_document
 ---
 
-0. Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
+0.  Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
 
 ```{r}
 library(readxl)
