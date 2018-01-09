@@ -55,11 +55,16 @@ Position.Analysis$Total.Touchdowns <- (Position.Analysis$`Touchdowns Rushing` + 
       #Median Number of Yards by Position (2014)
       #Median Number of touchdowns by Position (2014)
 
-#Position.Analysis$Median.1st <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
-#Position.Analysis$Median.Yrds <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
-#Position.Analysis$Median.Tds <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
+Median.1st <- summarize(group_by(Position.Analysis, Position), median = median(Total.First.Downs))
+Median.1st
 
-"Replacement has 140 rows, data has 141??? How do I fix this?"
+Median.Yrds <- summarize(group_by(Position.Analysis, Position), median = median(Total.Yards))
+Median.Yrds
+
+Median.Tds <- summarize(group_by(Position.Analysis, Position), median = median(Total.Touchdowns))
+Median.Tds
+
+"Very interesting. WRs on average better than RBs. I think some analysis looking at position scarcity is needed here. Perhaps the top echelon RBs are worth significantly more due to this scarcity. Recievers may be distributed more together or higher on average indicating less scarcity. Therefore, draft RBs early... Recievers you can wait."
 
 
 #Alternative Method for Getting this Median Aggregate Information
@@ -100,6 +105,12 @@ colnames(Position.Analysis)
 
 Predictors.2015.FPG <- lm(`2015 PPG` ~ `2014 PPG` + `Downs Played` + `Total.First.Downs` + `Total.Yards` + `Total.Touchdowns`, data = Position.Analysis)
 summary(Predictors.2015.FPG)
+
+names(Position.Analysis) <- c("Player", "Position", "Downs.Played", "1st.Downs.Rushing", "Yards.Rushing", "Touchdowns.Rushing", "1st.Downs Recieving", "Yards.Recieving", "Touchdowns.Recieving", "PPG.2014", "PPG.2015" )
+
+
+# generalTestBF(PPG.2014 ~ PPG.2015 + Downs.Played + Total.First.Down + Total.Yards + Total.Touchdowns, data = Position.Analysis)
+
 
 "Very interesting. Only significant predictor for Fantasy Points for the upcoming 2015 season is Fantasy Points from 2014 Season. I assume this is the case however because of multicollinearity between the predictors. Need to transform this data in future analyses."               
 ```

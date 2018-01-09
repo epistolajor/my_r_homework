@@ -1,0 +1,179 @@
+---
+title: "Day 6 Practice"
+output: html_document
+---
+
+# Regression practice
+
+Use the sample data in the scottdata folder
+  - run a logistic regression, using `glm()`, where "Merged" status is the (binary) dependent variable, and "WithinMinPairs" is the predictor.
+  - Hint #1: the basic usage of `glm()` is:
+
+results <- glm(DV ~ predictor1 + predictor2 + ...  ,                               
+               data = dataframe.object, family = "binomial")
+               
+  - Hint #2: the DV normally needs to be numeric (0s and 1s) for a logistic regression
+               
+```{r}
+practice <- read.csv("../../r_programming_bsos_winter2018/scottdata/CognitionPaperFinalData.csv")
+
+regression <- glm(Merged ~ WithinMinPairs, data = practice, family = "binomial")
+
+#glm.fit: fitted probabilities numerically 0 or 1 occured -- "This means that it converts factor into 0 to 1"
+
+#error: glm.results2 <- glm(as.numeric(Merged) ~ WithinMinPairs, data = practice, family = "binomial")
+    #if you want to do transformation inside the regression
+        #glm.results3 <- glm(I(as.numeric(Merged)-1) ~ I(WithinMinPairs * 2), data = practice, family = "binomial")
+
+```
+
+  - use `summary()` to display the results.
+  
+```{r}
+  summary(regression)
+
+```
+
+  - using INLINE code, report the estimate, standard error, and p-value for the WithinMinPairs coefficient.  Hint #1: save the summary as an object, and pull values from that. Hint #2: use `str()` to figure out how to extract these values. Hint #3: save the individual results as objects first, then put in inline code.
+
+```{r}
+results.summary <- summary(regression)
+
+#estimate
+glm.estimate <- results.summary$coefficients["WithinMinPairs", "Estimate"]
+glm.estimate
+round(glm.estimate, digits = 5)
+
+#std.error
+glm.se <- results.summary$coefficients["WithinMinPairs", "Std. Error"]
+glm.se
+round(glm.se, digits = 5)
+
+#p-value
+glm.pval <- results.summary$coefficients["WithinMinPairs", "Pr(>|z|)"]
+glm.pval
+round(glm.pval, digits = 5)
+
+```
+
+The estimate is `r`, the standard error is `r`, and the p-value is `r`.
+
+EXTRA CREDIT: figure out how to display the above results with only a few decimal places
+
+
+# Graphics practice
+
+HINT: as you go, save plots as objects. This will make the last question much easier.
+
+0. Get the `french_fries` data into "long" format.  Call the new value variable "rating" and the factor with all the descriptors "flavor". Re-code the labels of the `treatment` variable to be "oil1", "oil2", and "oil3".
+
+```{r}
+myfrench_fries <- french_fries
+head(myfrench_fries)
+
+myfrench_fries.long <- gather(myfrench_fries, flavor, ratings, potato:painty)
+#View(myfrench_fries.long)
+#View(myfrench_fries)
+
+levels(myfrench_fries.long$treatment) <- c("oil1", "oil2", "oil3")
+levels(myfrench_fries.long$treatment)
+#View(myfrench_fries.long)
+
+head(myfrench_fries.long)
+
+#GGplot likes long form data
+
+```
+
+1. Use `ggplot()` to plot a histogram and a density plot (separately) for `rating` 
+   - Try some different values for `binwidth` for the histogram.
+   - Try some different values for `adjust` for the density plot.
+
+```{r}
+ggplot(data = myfrench_fries.long, aes(x = ratings)) + geom_histogram()
+
+ggplot(data = myfrench_fries.long, aes(x = ratings)) + geom_density()
+
+      #(data = aes(x = variable) portion
+
+ggplot(data = myfrench_fries.long, aes(x = ratings)) + geom_histogram(binwidth = .2)
+
+ggplot(data = myfrench_fries.long, aes(x = ratings)) + geom_density(adjust = .2)
+
+```
+
+2. How does the distribution look?  Try transforming the variable and try to get it to look more normal (i.e., more Gaussian).  If it already looks normal, do something to it to make it look non-normal.
+
+```{r}
+library(car)
+library(lme4)
+
+head(myfrench_fries.long)
+
+myfrench_fries.long$ratingsLog <- log(myfrench_fries.long$ratings)
+
+myfrench_fries.long$ratingsSqrt <- sqrt(myfrench_fries.long$ratings)
+
+myfrench_fries.long$ratingsLogit <- logit(myfrench_fries.long$ratings)
+
+
+
+ggplot(data = myfrench_fries.long, aes(x = ratings)) + geom_density()
+
+ggplot(data = myfrench_fries.long, aes(x = ratingsLog)) + geom_density()
+
+ggplot(data = myfrench_fries.long, aes(x = ratingsSqrt)) + geom_density()
+
+ggplot(data = myfrench_fries.long, aes(x = ratingsLogit)) + geom_density()
+
+
+#OR YOU CAN DO DIRECT TRANSFORMATION ONTO GGPLOT
+
+#ggplot(data = myfrench_fries.long[myfrench_fries.long$ratings != 0], aes(x = ratingsLog)) + geom_density()
+
+```
+
+3. Let's break this up by the `treatment` factor
+   - Plot it as a density plot, mapping `color` to the factor
+   - Same, but try using `fill` instead of `color`
+   - Same, using `linetype` instead of `color`
+   - Plot the data as a boxplot, with the factor as `x` and the numerical variable as `y`
+
+```{r}
+
+#color = outline
+#fill = overlap (just what is drawn in order)
+        #alpha = transparency for overlap
+
+```
+
+4. Now let's look at breaking up a histogram across this factor.  With the same variables you used in #3:
+   - Plot a histogram, but use faceting to display them, one above the other.
+   - Try mapping the factor to `color` or `fill`, to see what that looks like.
+
+```{r}
+
+```
+
+5. Now cast the data back to where the different flavors are in different columns. Pick two of the flavor columns to explore
+   - Create a scatterplot, with one variable mapped to `x` and the other to `y`.
+   - Plot a "loess" smoother on top of the scatterplot
+   - Plot a regression line on top of the scatterplot (instead of the loess)
+
+```{r}
+
+```
+
+6. With this same scatterplot, break it up by `treatment`
+   - Map `treatment` to `color`
+ 
+```{r}
+
+```
+
+7. Output all of the plots above as a single PDF.
+
+```{r}
+
+```
+
