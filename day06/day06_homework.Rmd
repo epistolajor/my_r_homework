@@ -145,6 +145,22 @@ ggplot(data = Data.Bar.WR.TE, aes((x = PPG.Mean.WR.TE)))+geom_bar(aes(fill = WR.
 
             #Is this what the question is asking for?
 
+#######################
+minpair.means.fantasy <- group_by(FantasyFootball2015, PPR__1) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means.fantasy
+
+
+ggplot(minpair.means.fantasy, aes(PPG.2015, mean.within))+geom_bar(stat = "position")
+
+
+#######################
+minpair.means <- group_by(scottdata, Corpus) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means
+
+ggplot(minpair.means, aes(Corpus, mean.within)) + geom_bar(stat = "identity")
+
+#######################
+
 ```
    
 6. Create a bar plot that gets means broken down by TWO grouping factors.  For example, if Factor A has levels "red" and "blue" and Factor B has levels "north" and "south", get the cell means of "red north", "red south", "blue north", and "blue south."  
@@ -160,6 +176,20 @@ colnames(WR.TE)
 ggplot(data = WR.TE, aes(PPG.2015))+geom_bar(aes(color = Position))+facet_wrap(~Pro.Bowl.2014)
 
 #Not pretty or the best method I would say but it works here.
+
+
+####################
+
+
+
+
+
+####################
+minpair.means.bycorpus <- group_by(scottdata, Corpus, Merged) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means.bycorpus
+
+ggplot(minpair.means.bycorpus, aes(Corpus, mean.within)) + geom_bar(stat = "identity", aes(fill = Merged), position = "dodge") + scale_fill_brewer(palette = "Set1")
+####################
 ```
 
 7. Output all of the plots above (from problems 1-6) as a single PDF.

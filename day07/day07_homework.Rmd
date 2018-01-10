@@ -1,0 +1,162 @@
+---
+title: "Day 7 Homework"
+output: html_document
+---
+
+
+```{r}
+library(readxl)
+library(BayesFactor)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+```{r}
+FantasyFootball2014 <- read_xlsx("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FantasyFootball2015 <- read_xlsx("../Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+head(FantasyFootball2014)
+```
+
+
+Find three relationships in your data.  For each relationship, do the following:
+
+1. Verbally articulate the relationship you want to examine with a plot.
+
+#1) Distribution of 2014 & 2015 PPR points per Game by Position. Identify Outliers if Possible.
+#2) Relationship of Receptions, Targets & Fantasy PPR Points
+#3)  
+
+2. Verbally identify what variables you want to map to each graphical dimension.
+
+3. Reshape your data as needed.
+
+```{r}
+#1) Distribution of 2014 & 2015 PPR points per Game by Position. Label Outliers.
+A1.Players <- c(FantasyFootball2014$Player, FantasyFootball2015$Player)
+A1.Positions <- c(FantasyFootball2014$Pos, FantasyFootball2015$Pos)
+A1.Year <- c(rep("2014", 141), rep("2015", 141))
+A1.PPG.2014.2015 <- c(FantasyFootball2014$PPR__1, FantasyFootball2015$PPR__1)
+
+AnalysisOne.Data <- cbind.data.frame(A1.Players, A1.Positions, A1.Year, A1.PPG.2014.2015)
+#View(AnalysisOne.Data)
+
+
+#2) Relationship between 2014 PPR Points & 2015 PPR Points per Game based on Position.
+A2.Players <- FantasyFootball2014$Player
+A2.Position <- FantasyFootball2014$Pos
+A2.Probowl <- as.factor(FantasyFootball2014$PB)
+
+levels(A2.Probowl) <- c("No Pro-Bowl", "Pro-Bowl")
+#levels(A2.Probowl)
+
+A2.PPG.2014 <- FantasyFootball2014$PPR__1
+A2.PPG.2015 <- FantasyFootball2015$PPR__1
+
+AnalysisTwo.Data <- cbind.data.frame(A2.Players,A2.Position,A2.Probowl, A2.PPG.2014,A2.PPG.2015)
+
+
+#3) Relationship between 2015 PPR Points, Completion Percentage, QB Ranking (2014) by Position
+A3.Players <- (FantasyFootball2014$Player)
+A3.Position <- (FantasyFootball2014$Pos)
+A3.Win <- FantasyFootball2014$`# Win`
+A3.QB.Com <- (FantasyFootball2014$Per)
+A3.QB.Rank <- FantasyFootball2014$Rate
+A3.PPG.2014 <- FantasyFootball2014$PPR__1
+A3.PPG.2015 <- FantasyFootball2014$PPG2015.PPR
+
+AnalysisThree.Data <- cbind.data.frame(A3.Players, A3.Position,A3.Win, A3.QB.Com, A3.QB.Rank, A3.PPG.2014, A3.PPG.2015)
+
+```
+
+4. Use ggplot2 to create your graphs.
+
+```{r}
+#1) Distribution of 2014 & 2015 PPR points per Game by Position.
+Plot1 <- ggplot(data = AnalysisOne.Data, aes(A1.Positions, A1.PPG.2014.2015))+geom_boxplot()+facet_wrap(~A1.Year)+ggtitle("Fantasy Points per Game by Position")+xlab("Position")+ylab("2015 Fantasy Points per Game (PPR)")
+
+
+#2) Relationship between 2014 PPR Points & 2015 PPR Points per Game based on Position.    
+Plot2 <- ggplot(data = AnalysisTwo.Data, aes(x = log(A2.PPG.2014), y = log(A2.PPG.2015), color = A2.Position))+geom_point()+geom_smooth(method = "lm", se = FALSE)+facet_wrap(~A2.Probowl)+xlab("Points per Game 2014 (PPR)")+ylab("Points per Game 2015 (PPR)")
+
+
+#3) Relationship between PPR Points & QB Ranking by Position for 2014 & 2015
+Plot3 <- ggplot(data = AnalysisThree.Data, aes(x = A3.QB.Com, y = A3.PPG.2015, size = A3.QB.Rank, color = A3.Win))+geom_point()+facet_wrap(~A3.Position)
+
+```
+
+5. Fiddle with colors, axis labels, themes, etc. until the plot looks "publication ready" to you.  Try to change at least one thing per plot.
+
+```{r}
+#1) Distribution of 2014 & 2015 PPR points per Game by Position
+
+      #Outlier Labels
+      is_outlier <- function(x) {
+      return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))}
+
+AnalysisOne.Data %>%
+  group_by(A1.Positions) %>%
+  mutate(outlier = ifelse(is_outlier(A1.PPG.2014.2015), A1.PPG.2014.2015, as.numeric(NA))) %>% 
+           ggplot(., aes(x = factor(A1.Positions), y = A1.PPG.2014.2015))+geom_boxplot()+facet_wrap(~A1.Year)+ ggtitle("Fantasy Points per Game by Position for 2014 & 2015 Seasons")+xlab("Position")+ylab("2015 Fantasy Points per Game (PPR)")+geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)
+
+                #This code is supposed to label the outliers... Why is this not working?
+
+```     
+
+
+```{r}
+#2) Relationship between 2014 PPR Points & 2015 PPR Points per Game based on Position.    
+
+seahawks <- scale_color_manual(values = c("darkblue", "green", "grey"))
+
+ggplot(data = AnalysisTwo.Data, aes(x = log(A2.PPG.2014), y = log(A2.PPG.2015), color = A2.Position))+geom_point()+geom_smooth(method = "lm")+facet_wrap(~A2.Probowl)+xlab("Points per Game 2014 (PPR)")+ylab("Points per Game 2015 (PPR)")+ seahawks + ggtitle("2014 Fantasy Points per Game by 2015 Fantasy Points per Game") + labs(col = "Position")
+
+Bayes.A2 <- generalTestBF(A2.PPG.2015 ~ A2.Probowl + A2.PPG.2014, data = AnalysisTwo.Data)
+Bayes.A2
+
+#No Significant Relationship between 2014 PPG(PPR) & 2015 PPG(PPR)
+```
+
+```{r}
+#3) Relationship between PPR Points & QB Ranking by Position for 2014 & 2015
+
+ggplot(data = AnalysisThree.Data, aes(x = A3.Win, y = A3.PPG.2015, size = A3.QB.Rank, color = A3.QB.Com))+geom_point()+facet_wrap(~A3.Position)+xlab("2014 QB Competion Rate")+ylab("2015 Fantasy Points per Game(PPR)")+ggtitle("2015 Points per Game by QB Rate, QB Percent & # of Team Wins") + labs(col = "QB Completion Percent", size = "QB Rating")
+
+
+Bayes.A3 <- generalTestBF(A3.PPG.2015 ~ A3.QB.Com + A3.QB.Rank + A3.Win, data = AnalysisThree.Data)
+Bayes.A3
+
+max(Bayes.A3)
+
+
+```
+
+
+6. Save all plots to a format that you could use in a paper.  HINT: PNG works well for pasting into Word documents.
+
+```{r}
+
+png("day7HW.png", width = 600, height = 800)
+
+#Question 1
+      #Outlier Labels
+      is_outlier <- function(x) {
+      return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))}
+
+AnalysisOne.Data %>%
+  group_by(A1.Positions) %>%
+  mutate(outlier = ifelse(is_outlier(A1.PPG.2014.2015), A1.PPG.2014.2015, as.numeric(NA))) %>% 
+           ggplot(., aes(x = factor(A1.Positions), y = A1.PPG.2014.2015))+geom_boxplot()+facet_wrap(~A1.Year)+ ggtitle("Fantasy Points per Game by Position for 2014 & 2015 Seasons")+xlab("Position")+ylab("2015 Fantasy Points per Game (PPR)")+geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)
+
+#Question 2
+ggplot(data = AnalysisTwo.Data, aes(x = log(A2.PPG.2014), y = log(A2.PPG.2015), color = A2.Position))+geom_point()+geom_smooth(method = "lm")+facet_wrap(~A2.Probowl)+xlab("Points per Game 2014 (PPR)")+ylab("Points per Game 2015 (PPR)")+ seahawks + ggtitle("2014 Fantasy Points per Game by 2015 Fantasy Points per Game") + labs(col = "Position")
+
+#Question 3
+ggplot(data = AnalysisThree.Data, aes(x = A3.Win, y = A3.PPG.2015, size = A3.QB.Rank, color = A3.QB.Com))+geom_point()+facet_wrap(~A3.Position)+xlab("2014 QB Competion Rate")+ylab("2015 Fantasy Points per Game(PPR)")+ggtitle("2015 Points per Game by QB Rate, QB Percent & # of Team Wins") + labs(col = "QB Completion Percent", size = "QB Rating")
+
+
+dev.off()
+
+```
+
