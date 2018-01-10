@@ -1,0 +1,123 @@
+---
+title: "Day 5 Homework"
+output: html_document
+---
+
+0. Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
+
+```{r}
+<<<<<<< HEAD
+library(readxl)
+
+FantasyFootball2014 <- read_excel("../../my_r_homework/Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FantasyFootball2015 <- read_excel("../../my_r_homework/Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+head(FantasyFootball2014)
+head(FantasyFootball2015)
+
+#summary(FantasyFootball2014)
+FantasyFootball2014$Pos <- as.factor(FantasyFootball2014$Pos)
+FantasyFootball2014$Team <- as.factor(FantasyFootball2014$Team)
+
+FantasyFootball2015$Pos <- as.factor(FantasyFootball2015$Pos)
+FantasyFootball2015$Team <- as.factor(FantasyFootball2015$Team)
+#summary(FantasyFootball2014)
+#summary(FantasyFootball2015)
+=======
+library(tidyverse)
+scottdata <- read.csv("scottdata/CognitionPaperFinalData.csv")
+>>>>>>> e767846704d25eb9c9bdbaacee4b502ea4ff5284
+```
+
+1. Aggregate (e.g., get mean/median/max/something) of some numerical variable, over one or more factors.  Use `group_by()` plus `summarize()` from the `dplyr` package. You may or may not need to reshape the data first!
+
+```{r}
+<<<<<<< HEAD
+library(dplyr)
+=======
+# normal "nested" syntax
+summarize(group_by(scottdata, Merged), 
+          meanMP = mean(BetweenMinPairs), 
+          medianMP = median(BetweenMinPairs), 
+          sdMP = sd(BetweenMinPairs), 
+          N = length(BetweenMinPairs), 
+          seMP = sd(BetweenMinPairs)/sqrt(length(BetweenMinPairs)))
+
+# "piped" syntax
+group_by(scottdata, Merged) %>% summarize(meanMP = mean(BetweenMinPairs), 
+                                          medianMP = median(BetweenMinPairs), 
+                                          sdMP = sd(BetweenMinPairs), 
+                                          N = length(BetweenMinPairs), 
+                                          seMP = sd(BetweenMinPairs)/sqrt(length(BetweenMinPairs)))
+>>>>>>> e767846704d25eb9c9bdbaacee4b502ea4ff5284
+
+#Create Position Analysis Dataframe
+#FantasyFootball2014x2015 <- merge(FantasyFootball2014, FantasyFootball2015, by = "Player")
+FantasyFootball2014x2015 <- cbind(FantasyFootball2014, FantasyFootball2015)
+    #View(FantasyFootball2014x2015)
+
+
+Position.Analysis <- data.frame(FantasyFootball2014x2015$Player, FantasyFootball2014x2015$Pos, FantasyFootball2014x2015$DP, FantasyFootball2014x2015$`1st`, FantasyFootball2014x2015$Yds, FantasyFootball2014x2015$TD, FantasyFootball2014x2015$`1st__1`,FantasyFootball2014x2015$Yds__1, FantasyFootball2014x2015$TD__1, FantasyFootball2014$PPG, FantasyFootball2015$PPG)
+
+names(Position.Analysis) <- c("Player", "Position", "Downs Played", "1st Downs Rushing", "Yards Rushing", "Touchdowns Rushing", "1st Downs Recieving", "Yards Recieving", "Touchdowns Recieving", "2014 PPG", "2015 PPG")
+#head(Position.Analysis)
+
+
+#Aggregate Data
+      #Total Number of First Downs by Position (2014) (Rushing + Recieving)
+      #Total Number of Yards by Position (2014) (Rushing + Recieving)
+      #Total Number of Touchdowns by Position (2014) (Rushing + Recieving)
+
+Position.Analysis$Total.First.Downs <- (Position.Analysis$`1st Downs Rushing` + Position.Analysis$`1st Downs Recieving`)
+Position.Analysis$Total.Yards <- (Position.Analysis$`Yards Rushing` + Position.Analysis$`Yards Recieving`)
+Position.Analysis$Total.Touchdowns <- (Position.Analysis$`Touchdowns Rushing` + Position.Analysis$`Touchdowns Recieving`)
+
+      #Median Number of total First downs by Position (2014)
+      #Median Number of Yards by Position (2014)
+      #Median Number of touchdowns by Position (2014)
+
+Position.Analysis$Median.1st <- summarize(group_by(Position.Analysis, Player, Position), median = median(Total.First.Downs))
+Position.Analysis$Median.Yrds <-
+Position.Analysis$Median.Tds <-
+
+
+```
+
+<<<<<<< HEAD
+2. Run TWO DIFFERENT simple analyses or statistical tests, such as linear regression (`lm()`), logistic regression (`glm()`), correlation test (`cor.test()`), t-test (`t.test()`), or non-parametric tests (e.g., `wilcox.test()`).  For each of these:
+  - Describe why you are doing this analysis, i.e., what question is it answering?
+  - I won't judge you on statistical expertise!  (though I will make comments if I think I can be helpful)
+  - Report some key statistics from the analysis, using **inline** code. HINT: outside of an R code chunk, use `r codehere` format.
+  
+```{r}
+<<<<<<< HEAD
+
+
+
+=======
+# Already there!
+>>>>>>> e767846704d25eb9c9bdbaacee4b502ea4ff5284
+```
+
+3. Get your data into "long" (aka "tidy") format, if it isn't already
+=======
+2. Get your data into "long" (aka "tidy") format, if it isn't already
+>>>>>>> 349832c192ab9e1da8ae37b589e9151f1f4a0781
+
+```{r}
+
+```
+
+
+myff <- french_fries
+head(myff)
+
+# make long
+myff.long <- gather(myff, flavor, rating, potato:painty)
+head(myff.long)
+
+# get "cell means"
+ff.means <- summarize(group_by(myff.long, treatment, flavor), mean = mean(rating))
+ff.means
+ff.means <- summarize(group_by(myff.long, treatment, flavor), mean = mean(rating, na.rm = TRUE))
+ff.means

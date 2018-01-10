@@ -1,0 +1,244 @@
+---
+title: "Day 5 Practice"
+output: html_document
+---
+
+1. Make another copy of the iris data set
+  - Using `data.frame()` create a (small) table that assigns a color to each species.  That is, make a column called Species and a column called Color, with one row per species
+  - use `merge()` to merge the data into the copy of the iris data set
+  - create another table with an additional species (and color)
+  - merge this new table with iris. What happened?
+  - create one more table matching species to color, with only two rows, missing setosa
+  - merge this new table with the copy of iris. What happened?
+
+```{r}
+library(dplyr)
+my.iris <- iris
+species.color <- data.frame(Species = c("setosa", "virginica", "versicolor"),
+                            Color = c("red", "blue", "yellow"))
+species.color
+iris.merge1 <- merge(my.iris, species.color) #, by = "Species")
+head(iris.merge1)
+nrow(iris.merge1)
+xtabs(~ Species + Color, iris.merge1)
+
+species.color2 <- data.frame(Species = c("setosa", "virginica", "versicolor", "scorpiris"),
+                            Color = c("red", "blue", "yellow", "purple"))
+species.color2
+iris.merge2 <- merge(my.iris, species.color2, all = FALSE)
+iris.merge3 <- merge(my.iris, species.color2, all = TRUE)
+iris.merge4 <- left_join(my.iris, species.color2)
+iris.merge4$Species <- as.factor(iris.merge4$Species)
+nrow(my.iris)
+nrow(iris.merge2)
+nrow(iris.merge3)
+nrow(iris.merge4)
+
+species.color3 <- data.frame(Species = c("virginica", "versicolor"),
+                            Color = c("blue", "yellow"))
+species.color3
+iris.merge5 <- merge(my.iris, species.color3, all = FALSE)
+iris.merge6 <- merge(my.iris, species.color3, all = TRUE)
+iris.merge7 <- left_join(my.iris, species.color3)
+iris.merge7$Species <- as.factor(iris.merge7$Species)
+nrow(my.iris)
+nrow(iris.merge5)
+nrow(iris.merge6)
+nrow(iris.merge7)
+
+#View(iris)
+summary(iris$Species)
+
+
+#This is how to do it correctly
+
+#making small data frame
+my.iris <- iris
+species.color <- data.frame(Species = c("setosa", "virginica", "versicolor"), 
+                            Color = c("red", "blue", "yellow"))
+
+species.color
+iris.merge1 <- merge(my.iris, species.color, by = "Species")
+      # if it things this is a object, then put Quotes. If Quotes not found then try no quotes.
+
+      # Checking Code
+      head(iris.merge1)
+      nrow(iris.merge1)
+        xtabs(~ Species + Color, iris.merge1)
+  
+# New data Frame w/ color and new species
+species.color2 <- data.frame(Species = c("setosa", "virginica", "versicolor", "scorpiris"), 
+                            Color = c("red", "blue", "yellow", "purple"))
+species.color2
+
+iris.merge2 <- merge(my.iris, species.color2, by = "Species", all = FALSE) # all = False: End result only retain matching data
+iris.merge3 <- merge(my.iris, species.color2, by = "Species", all = TRUE)  # all = TRUE: End result contains everything, including NAs
+
+iris.merge4 <- left_join(my.iris, species.color2) # Keep data in old data set, but does not add everything (i.e. "scorpiris")
+iris.merge4
+      "Column `Species` joining factors with different levels, coercing to character vector --- we need to put Species back into Factor"
+        iris.merge4$Species <- as.factor(iris.merge4$Species)
+        
+      # Checking Code
+      head(iris.merge4)
+      nrow(iris.merge2)
+      nrow(iris.merge3)
+      nrow(iris.merge4)
+        xtabs(~ Species + Color, iris.merge1)
+        
+
+# New Data Frame w/ only virginica & versicolor color data | adding these data only
+species.color3 <- data.frame(Species = c("virginica", "versicolor"), Color = c("blue", "yellow"))
+species.color3
+
+iris.merge5 <- merge(my.iris, species.color3, all = FALSE) #End result only retain matching data
+iris.merge6 <- merge(my.iris, species.color3, all = TRUE)  #End result contains everything
+
+iris.merge7 <- left_join(my.iris, species.color3)
+iris.merge7
+
+
+      # Checking Code
+      head(iris.merge7)
+      nrow(iris.merge5)
+      nrow(iris.merge6)
+      nrow(iris.merge7)
+        xtabs(~ Species + Color, iris.merge7)
+        
+
+```
+
+
+2. Make (yet another) copy of the iris data set
+  - #Create a column that takes the log of the Sepal.Width
+  - #Create a column that represents the multiplication of Sepal.Width by Sepal.Length
+  - #Create a "median split" column on Sepal.Width. In other words, calculate the median of Sepal.Width, and then create a column that indicates whether the value in that row is less than the median or not
+  
+```{r}
+my.iris <- iris
+my.iris$log.Sepal.Width <- log(my.iris$Sepal.Width)
+my.iris$Sepal.Area <- my.iris$Sepal.Width * my.iris$Sepal.Length
+
+<<<<<<< HEAD
+my.iris.copy <- iris
+
+#Create a column that takes the log of the Sepal.Width
+    my.iris.copy$log.sepal.width <- log(my.iris.copy$Sepal.Width)
+    
+#Create a column that represents the multiplication of Sepal.Width by Sepal.Length
+    my.iris.copy$multiply.sw.sl <- ((my.iris.copy$Sepal.Width) * (my.iris.copy$Sepal.Length))
+    
+#Create a "median split" column on Sepal.Width. In other words, calculate the median of Sepal.Width, and then create a column that indicates whether the value in that row is less than the median or not
+    median(my.iris.copy$multiply.sw.sl)
+=======
+median.Sepal.Width <- median(my.iris$Sepal.Width)
+
+# one method
+my.iris$median.split <- NA # not necessary (but maybe used to be?)
+my.iris$median.split[my.iris$Sepal.Width < median.Sepal.Width]  <- "low"
+my.iris$median.split[my.iris$Sepal.Width >= median.Sepal.Width] <- "high"
+
+# another method
+my.iris$median.split2 <- ifelse(test = my.iris$Sepal.Width < median.Sepal.Width, 
+                               yes = "low", no = "high")
+my.iris$median.split3 <- as.factor(ifelse(test = my.iris$Sepal.Width < median.Sepal.Width, 
+                               yes = "low", no = "high"))
+
+
+# another method
+my.iris$median.split4 <- as.factor(my.iris$Sepal.Width < median.Sepal.Width)
+levels(my.iris$median.split4) <- c("low", "high") # should be c("high", "low")
+
+xtabs(~ Sepal.Width + median.split, my.iris)
+xtabs(~ median.split + median.split2, my.iris)
+xtabs(~ median.split + median.split3, my.iris)
+xtabs(~ median.split + median.split4, my.iris)
+>>>>>>> 349832c192ab9e1da8ae37b589e9151f1f4a0781
+
+      median(my.iris.copy$Sepal.Width)
+    my.iris.copy$median.greater.less <- (my.iris.copy$Sepal.Width > 3)
+    my.iris.copy$median.greater.less
+    
+    #Another method (if-else)
+    my.iris.copy$median.greater.less2 <- ifelse(test = my.iris.copy$Sepal.Width < median(my.iris.copy$Sepal.Width), yes = "low", no = "high")
+    my.iris.copy$median.greater.less2
+    
+```
+
+3. Start with (yes, you guessed it!) another copy of the iris data set
+  - Use `gather()` to convert this wide data to long format
+    - You should be "gathering up" all of the columns with measurements
+  - "Tidy" up the new factor column by splitting it into two columns: one designating dimension (width vs. length), one designating flower part (sepal vs. petal)
+    
+```{r}
+my.iris <- iris
+my.iris$PlantID <- as.factor(paste("plant", 1:nrow(my.iris), sep = ""))
+iris.long <- gather(my.iris, measurement, cm, Sepal.Length:Petal.Width)
+head(iris.long)
+
+<<<<<<< HEAD
+my.iris3 <- iris
+
+#conversion to long
+=======
+iris.long <- separate(iris.long, measurement, sep = "\\.", c("plant.part", "dimension"))
+head(iris.long)
+```
+>>>>>>> 349832c192ab9e1da8ae37b589e9151f1f4a0781
+
+
+<<<<<<< HEAD
+iris.long <- gather(my.iris3, Variables, Values, Sepal.Length:Petal.Width)
+head(iris.long)
+    #lets make tracking ID
+    my.iris$plantID <- (1:nrow(my.iris))
+    #head(my.iris)
+```
+=======
+```{r}
+cell.means <- group_by(iris.long, plant.part, dimension, Species) %>% summarize(mean.cm = mean(cm))
+head(cell.means)
+cell.means.wide <- spread(cell.means, Species, mean.cm)
+cell.means.wide
+>>>>>>> 349832c192ab9e1da8ae37b589e9151f1f4a0781
+
+**TIDY?????**
+```{r}
+#install.packages("lazyeval")
+#library(tidyverse)
+#tidy - still long but separate widths/length & flower parts
+
+    iris.long1 <- separate(iris.long, Variables, sep = "\\.", c("plant.part", "dimension"))  
+                          #splitting along the dots
+    head(iris.long)
+    head(iris.long1)
+    
+    
+```
+
+<<<<<<< HEAD
+4. Continue working with the "long" iris data from previous problem
+  - using `dplyr` functions, get the mean for each "cell" in the species x part x dimension design
+  - make the results "wide", with different columns for each species
+
+```{r}
+
+```
+
+  - use `summary()` to display the results.
+  
+```{r}
+
+```
+
+  - using INLINE code, report the estimate, standard error, and p-value for the WithinMinPairs coefficient.  Hint #1: save the summary as an object, and pull values from that. Hint #2: use `str()` to figure out how to extract these values. Hint #3: save the individual results as objects first, then put in inline code.
+
+```{r}
+
+```
+
+The estimate is `r`, the standard error is `r`, and the p-value is `r`.
+
+EXTRA CREDIT: figure out how to display the above results with only a few decimal places
+=======
+>>>>>>> 349832c192ab9e1da8ae37b589e9151f1f4a0781

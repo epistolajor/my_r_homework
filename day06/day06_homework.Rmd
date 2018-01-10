@@ -6,6 +6,15 @@ output: html_document
 0. Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
 
 ```{r}
+library(readxl)
+
+FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FantasyFootball2015 <- read_excel("../Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+WideRecievers <- cbind.data.frame(FantasyFootball2014$Player[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$PB[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$DP[FantasyFootball2014$Pos == "WR"],FantasyFootball2014$Tgt[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$Rec[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$Yds__1[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$TD__1[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$`1st__1`[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$PPR__1[FantasyFootball2014$Pos == "WR"],FantasyFootball2015$PPR[FantasyFootball2015$Pos == "WR"], FantasyFootball2015$PPR__1[FantasyFootball2015$Pos == "WR"])
+                   
+colnames(WideRecievers) <- c("Player", "Pro.Bowl.2014", "Downs.Played.2014", "Tgt.2014", "Rec.2014","Yds.2014","TD.2014","First.Downs.2014","PPR2014","PPR.Rank.2015","PPR2015")
+head(WideRecievers)
 
 ```
 
@@ -13,23 +22,69 @@ output: html_document
   - Describe why you are doing this analysis, i.e., what question is it answering?
   - I won't judge you on statistical expertise!  (though I will make comments if I think I can be helpful)
   - Report some key statistics from the analysis, using **inline** code. HINT: outside of an R code chunk, use `r codehere` format.
-  
+
 ```{r}
+#Complex Model including all of these predictors for 2015 Fantasy Points per Game (WR) significant? If yes, which predictors are significant?>
+
+WideReciever.2015.Regression <- lm(PPR2015 ~ Pro.Bowl.2014 + Downs.Played.2014 + Tgt.2014 + Rec.2014 + Yds.2014 + TD.2014 + First.Downs.2014 + PPR2014 + PPR.Rank.2015, data = WideRecievers)
+
+summary(WideReciever.2015.Regression)
+
+"Overall model with all of these predictors are significant. In this model however, only one predictor (2015 PPR Rank) is significant."
+
+"Wow. Only 2015 PPR Rankings is a significant predictor for predicting 2015 Fantasy Points. This has to be indicative of multi-collinearity because in my prior analysis, 2014 Fantasy Points was a significant predictor for 2015 Fantasy Points."
 
 ```
 
-2. Pick a single numerical variable from your data.  Use `ggplot` to plot a histogram and a density plot (separately).
-   - Try some different values for `binwidth` for the histogram.
-   - Try some different values for `adjust` for the density plot.
-
 ```{r}
+
+#Top 3 models of Predictors for 2015 Fantasy Points per game (WR) using Bayes? (Model Comparison)
+
+library(BayesFactor)
+
+BayesModels <- generalTestBF(PPR2015 ~ Pro.Bowl.2014 + Tgt.2014 + Rec.2014 + Yds.2014 + TD.2014 + First.Downs.2014 + PPR2014 + PPR.Rank.2015, data = WideRecievers)
+
+#Max
+sort(BayesModels, TRUE)[1]
+
+#2nd Max
+sort(BayesModels, TRUE)[2]
+
+#3rd Max
+sort(BayesModels, TRUE)[3]
+
+
+"According to Bayes, there are several models and arrangements of predictors that predict 2015 Fantasy Points. Among all of these models the top 3 models for predicting 2015 Fantasy points are: 1) 2014 Pro Bowl Status + 2015 PPR Rank (BF = 468140631), 2) 2014 Pro Bowl Status + 2014 Receptions + 2015 PPR Rank (BF = 207820422), 3) 2014 Fantasy Points per Game + 2015 PPR Rank (BF = 195711607)."
 
 ```
 
 3. How does the distribution look?  Try transforming the variable and try to get it to look more normal (i.e., more Gaussian).  If it already looks normal, do something to it to make it look non-normal.
 
 ```{r}
+#Lets look at Distributions for Predictors mentioned significant in Bayes (2014 Pro Bowl, 2015 PPR Rank, 2014 Receptions, 2014, Fantasy Points per Game)
 
+library(ggplot2)
+
+#2014 Pro Bowl. NA. This is a dichotomous variable, do not need to transform.
+#ggplot(data = WideRecievers, aes(x = Pro.Bowl.2014))+geom_histogram()
+
+#2015 PPR Rank. NA. This does not need to be normal because it is not a continuous variable. It is ordinal only. Do not transform.
+#ggplot(data = WideRecievers, aes(x = PPR.Rank.2015))+geom_density()
+
+#2014 Receptions. Somewhat normal but is still positively skew.
+ggplot(data = WideRecievers, aes(x = Rec.2014))+geom_density(fill = "light blue")
+      ggplot(data = WideRecievers, aes(log(x = Rec.2014)))+geom_density(fill = "light blue")
+      ggplot(data = WideRecievers, aes(sqrt(x = Rec.2014)))+geom_density(fill = "light blue")
+
+      "Sqrt looks most normal"
+      
+#2014 PPR Points. This is not normal. Positively skewed.
+ggplot(data = WideRecievers, aes(x = PPR2014))+geom_density(fill = "light green")
+      ggplot(data = WideRecievers, aes(log(x = PPR2014)))+geom_density(fill = "light green")
+      ggplot(data = WideRecievers, aes(sqrt(x = PPR2014)))+geom_density(fill = "light green")
+      
+      "Log looks most normal"
+    
 ```
 
 4. Is there a factor that you can use to break up this variable into groups of observations?  If not, reshape your data so that there is, or create a factor if necessary.  Then, do the following:
@@ -39,16 +94,56 @@ output: html_document
    - Plot the data as a boxplot, with the factor as `x` and the numerical variable as `y`  HINT: use geom_boxplot
 
 ```{r}
+#No because we are looking at Wide Recievers only. Lets quickly create a new data frame of all WRs & TEs and Position, 2014 PPR Points, 2014 Receptions & Fantasy Points 2015 per game.
 
+WR.TE <- cbind.data.frame(FantasyFootball2014$Player[FantasyFootball2014$Pos != "RB"],FantasyFootball2014$Pos[FantasyFootball2014$Pos != "RB"], FantasyFootball2014$Rec[FantasyFootball2014$Pos != "RB"], FantasyFootball2014$PPR__1[FantasyFootball2014$Pos != "RB"], FantasyFootball2015$PPR__1[FantasyFootball2015$Pos != "RB"])
+colnames(WR.TE) <- c("Player","Position", "Receptions.2014", "PPG.2014", "PPG.2015")
+    #levels(WR.TE$Position)
+
+
+#Graphs -  Receptions
+ggplot(data = WR.TE, aes(sqrt(x = Receptions.2014)))+geom_density(aes(color = Position))
+ggplot(data = WR.TE, aes(sqrt(x = Receptions.2014)))+geom_density(aes(fill = Position))
+ggplot(data = WR.TE, aes(sqrt(x = Receptions.2014)))+geom_density(aes(linetype = Position))
+
+#Graphs - 2014 Points per Game (PPR)
+ggplot(data = WR.TE, aes(log(x = PPG.2014)))+geom_density(aes(color = Position))
+ggplot(data = WR.TE, aes(log(x = PPG.2014)))+geom_density(aes(fill = Position))
+ggplot(data = WR.TE, aes(log(x = PPG.2014)))+geom_density(aes(linetype = Position))
+
+#Box Plots
+ggplot(data = WR.TE, aes(Position, sqrt(Receptions.2014)))+geom_boxplot()
+ggplot(data = WR.TE, aes(Position,log(PPG.2014)))+geom_boxplot()
+
+      #No Outliers??
 ```
 
 5. Create a bar plot of the cell means of some variable. Steps:
    - Find a numerical variable and a grouping factor (this can be the same as those chosen above).
    - Get the mean value of the numerical variable, broken down by the factor.  
    - Plot this new aggregated data frame, using the "bar" geom.
-   - HINT: use stat = "identity" in the geom_bar() function.
+   - HINT: use stat = "identity" in the ?geom_bar() function.
    
 ```{r}
+levels(WR.TE$Position)
+Wide.Reciever.PPG.Mean.2015 <- mean(WR.TE$PPG.2015[WR.TE$Position == "WR"])
+Wide.Reciever.PPG.Mean.2015
+
+Tight.End.PPG.Mean.2015 <- mean(WR.TE$PPG.2015[WR.TE$Position == "TE"])
+Tight.End.PPG.Mean.2015
+
+PPG.Mean.WR.TE <- c(Wide.Reciever.PPG.Mean.2015, Tight.End.PPG.Mean.2015)
+WR.TE.Name <- c("WR","TE")
+
+Data.Bar.WR.TE <- cbind.data.frame(PPG.Mean.WR.TE, WR.TE.Name)
+Data.Bar.WR.TE$WR.TE.Name <- as.factor(WR.TE.Name)
+head(Data.Bar.WR.TE)
+
+#Bar Graphs
+ggplot(data = Data.Bar.WR.TE, aes((x = PPG.Mean.WR.TE)))+geom_bar(aes(fill = WR.TE.Name))
+        
+
+            #Is this what the question is asking for?
 
 ```
    
@@ -57,18 +152,74 @@ output: html_document
    - Use the "bar" geom, but map the two variables to different graphical dimension.  One should be the "x" value, but the other should be mapped to some other visual property.
 
 ```{r}
+#WR/TE & Pro Bowl/No Pro Bowl & PPG
 
+WR.TE$Pro.Bowl.2014 <- FantasyFootball2014$PB[FantasyFootball2014$Pos != "RB"]
+colnames(WR.TE)
+
+ggplot(data = WR.TE, aes(PPG.2015))+geom_bar(aes(color = Position))+facet_wrap(~Pro.Bowl.2014)
+
+#Not pretty or the best method I would say but it works here.
 ```
 
 7. Output all of the plots above (from problems 1-6) as a single PDF.
 
 ```{r}
+pdf("day6HW.pdf", width = 10, height = 4)
+
+#Question 1
+summary(WideReciever.2015.Regression)
+
+#Question 2
+sort(BayesModels, TRUE)[1]
+sort(BayesModels, TRUE)[2]
+sort(BayesModels, TRUE)[3]
+
+#Question 3
+ggplot(data = WideRecievers, aes(x = Rec.2014))+geom_density(fill = "light blue")
+      ggplot(data = WideRecievers, aes(log(x = Rec.2014)))+geom_density(fill = "light blue")
+      ggplot(data = WideRecievers, aes(sqrt(x = Rec.2014)))+geom_density(fill = "light blue")
+ggplot(data = WideRecievers, aes(x = PPR2014))+geom_density(fill = "light green")
+      ggplot(data = WideRecievers, aes(log(x = PPR2014)))+geom_density(fill = "light green")
+      ggplot(data = WideRecievers, aes(sqrt(x = PPR2014)))+geom_density(fill = "light green")
+      
+      
+#Question 4
+ggplot(data = WR.TE, aes(sqrt(x = Receptions.2014)))+geom_density(aes(color = Position))
+ggplot(data = WR.TE, aes(sqrt(x = Receptions.2014)))+geom_density(aes(fill = Position))
+ggplot(data = WR.TE, aes(sqrt(x = Receptions.2014)))+geom_density(aes(linetype = Position))
+ggplot(data = WR.TE, aes(log(x = PPG.2014)))+geom_density(aes(color = Position))
+ggplot(data = WR.TE, aes(log(x = PPG.2014)))+geom_density(aes(fill = Position))
+ggplot(data = WR.TE, aes(log(x = PPG.2014)))+geom_density(aes(linetype = Position))
+ggplot(data = WR.TE, aes(Position, sqrt(Receptions.2014)))+geom_boxplot()
+ggplot(data = WR.TE, aes(Position,log(PPG.2014)))+geom_boxplot()
+      
+#Question 5
+ggplot(data = Data.Bar.WR.TE, aes((x = PPG.Mean.WR.TE)))+geom_bar(aes(fill = WR.TE.Name))
+
+#Question 6
+ggplot(data = WR.TE, aes(PPG.2015))+geom_bar(aes(color = Position))+facet_wrap(~Pro.Bowl.2014)
+
+dev.off()
 
 ```
 
 8. Is there a better type of visualization for your data?  What numbers would you like to be able to visualize better?  Be as explicit as possible, and write some "pseudo-code" to ilustrate what you think you would like.
 
 ```{r}
+
+"I think a scatterplot distinguishing the three factors of position per continuous analysis would visualize the data very well. I could see different trends emerging per position and thus different predictors per position x analysis. Below is an example of what I am thinking of."
+
+ggplot(FantasyFootball2014, aes(x = PPR__1, y = DP, color = Pos)) + 
+  geom_point(size = 4) + 
+  theme_minimal() +
+  geom_smooth(method = "lm") +
+  my.palette
+
+#Y - Downs played
+#X - Points per Game (.5 PPR format)
+
+    #As you can see there are different relationships between downsplayed and fantasy points per game (PPR) by Position.
 
 ```
 
