@@ -7,7 +7,26 @@ output: html_document
 
 ```{r}
 
+Seahawks <- c(3,10,24,25,29,31,41,50,54,88,89)
+
+#This only does the first thing
+if(Seahawks > 10){
+  print("Defense")
+}else if(Seahawks < 10){
+  print("Offense")
+}else if(Seahawks > 55){
+  print("Offense")
+}
+
+
+#This does entire thing
+Seahawks <- c(3,10,25,29,31,50,54,88,89)
+result <- ifelse(Seahawks > 25 & Seahawks < 55, "Defense", ifelse(Seahawks < 25 & Seahawks <55, "Offense", "Offense"))
+result
+
 ```
+
+
 
 2. Make a copy of the iris data. Use an ifelse statement to create a new column, where:
   - if the value of Sepal.Length is less than 5, the new column should have a value of "low"
@@ -16,6 +35,8 @@ output: html_document
   - make a plot in ggplot2 to confirm that you did this right
   
 ```{r}
+
+
 
 ```
 

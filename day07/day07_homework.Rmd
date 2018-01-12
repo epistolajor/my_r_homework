@@ -102,6 +102,18 @@ AnalysisOne.Data %>%
 
                 #This code is supposed to label the outliers... Why is this not working?
 
+
+###### Class Note ######
+
+#How to Label Outliers, Need to add New Geom Layer of Text
+
+ggplot(AnalysisOne.Data , aes(x = factor(A1.Positions), y = A1.PPG.2014.2015))+geom_boxplot()+facet_wrap(~A1.Year)+ ggtitle("Fantasy Points per Game by Position for 2014 & 2015 Seasons")+xlab("Position")+ylab("2015 Fantasy Points per Game (PPR)")+geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3) + geom_text(A, aes(x = ))
+
+
+A <- (AnalysisOne.Data$A1.Players[AnalysisOne.Data$A1.PPG.2014.2015 > 18 & AnalysisOne.Data$A1.Positions == "WR" & AnalysisOne.Data$A1.Year == "2014"])
+A <- as.data.frame(A)
+
+
 ```     
 
 
