@@ -193,6 +193,7 @@ x * 3
 - the `FUN` argument says what to do with each row/column-wise vector
 
 ```{r}
+
 minpair <- read.csv("../../r_programming_bsos_winter2018/scottdata/CognitionPaperFinalData.csv")
 head(minpair)
 colnames(minpair)
@@ -509,6 +510,18 @@ identical(myris, myris2)
 ```{r}
 # run a regression 
 # extract the estimate, p-value, and adjusted r-squared
+
+library(tidyverse)
+head(starwars)
+
+lm.results <- lm(mass~height, data = starwars)
+lm.summary <- summary(lm.results)
+lm.summary$coefficients
+
+results.table<- data.frame(estimate = lm.results$coefficients[2],
+                           p.val = lm.summary$coefficients[2, "Pr(>|t|)"], adj.r2 = lm.summary$adj.r.squared)
+results.table
+
 
 # loop version
 

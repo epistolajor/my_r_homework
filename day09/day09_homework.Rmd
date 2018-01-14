@@ -3,19 +3,96 @@ title: "Day 9 Homework"
 output: html_document
 ---
 
+```{r}
+library(readxl)
+library(BayesFactor)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+FantasyFootball2014 <- read_xlsx("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FantasyFootball2015 <- read_xlsx("../Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+head(FantasyFootball2014)
+```
+
+
 0. Tell me about something you want to either review, or something new to cover.
+
+```{r}
+"I would like to cover ggplot, specifically how to add error bars to bar graphs. Also help on question number 2, getting stuck trying to make a Bayes Regression function :/
+
+Maybe overview types of Bayes analysis if we have time."
+```
+
 
 1. Use the `apply()` function to get the mean of several numerical columns, row-wise.  For example, imagine that you have three columns of numbers, and that you want to get the mean value for each row across the columns.  Use `apply()` to get this result and put it into a new column of your data frame.
 
 ```{r}
+#Mean Pass (Column)
+Mean.pass <- apply(FantasyFootball2014[, 15:20], MARGIN = 2, FUN = mean, na.rm = TRUE)
+Mean.pass
+
+#Mean Total Yards (row)
+FantasyFootball2014$Mean.total.yards <- apply(FantasyFootball2014[, c(15, 29, 32)], MARGIN = 1, FUN = mean, na.rm = TRUE)
+FantasyFootball2014$Mean.total.yards
+
 
 ```
 
 2. Write a small function. It can do something very, very simple.  It needs to have at least one argument.  Describe what you want it to do, write the function, and then use it on a few different cases.
 
 ```{r}
+FantasyFootball2014$PPG.2015.PPR <- FantasyFootball2015$PPR__1
+
+#Add Two Columns
+add.two.function <- function(col.1, col.2){
+  new_data <- (col.1 + col.2)
+  return(new_data)
+}
+
+add.two.function(FantasyFootball2014$`1st`,FantasyFootball2014$`1st__1`)
 
 ```
+
+```{r}
+#Regression Function
+regression.function <- function(data, DV, predictor) {
+  lm.results <- lm(get(DV) ~ get(predictor), data = data)
+  lm.summary <- summary(lm.results)
+  lm.summary$coefficients
+  # extract the estimate, p-value, and adjusted r-squared
+  results.table <- data.frame(estimate = lm.results$coefficients[2],
+                              p.val = lm.summary$coefficients[2, "Pr(>|t|)"],
+                              adj.r2 = lm.summary$adj.r.squared) 
+  results.table               
+}
+
+regression.function(FantasyFootball2014, "PPG.2015.PPR", c("Att", "Per", "Yds", "TD", "Int","Rate"))
+
+##########################
+#Regression Bayes Function
+#regression.function.Bayes <- function(data, DV.1, predictor.1) {
+ # bayes.results <- generalTestBF(get(DV.1) ~ get(predictor.1), data = data)
+ #  bayes.summary <- summary(bayes.results)
+ #  bayes.summary$coefficients
+  
+    # results.table <- data.frame(estimate = lm.results$coefficients[2],
+       #                        p.val = lm.summary$coefficients[2, "Pr(>|t|)"],
+       #                       adj.r2 = lm.summary$adj.r.squared) 
+  # results.table               
+
+
+#regression.function.Bayes1 <- function(data, DV.1, Pdt.1){
+  #bayes.regression <- generalTestBF(DV.1 ~ Pdt.1, data = data)
+  #return(bayes.regression)
+
+
+#regression.function.Bayes1(FantasyFootball2014, "PPG.2015.PPR", c("Att", "Per", "Yds", "TD", "Int","Rate"))
+
+
+```
+
 
 3. Go back to the two things you tried to use loops for in Day 8 Homework.  Pick ONE of these things to try to "vectorize."  If you decide that something else would work better, describe some new thing you're trying to do that could be accomplished with a loop. Depending on what you were doing, this may use the `apply()` function, or the combination of `group_by()` and `do()`.  Either of these methods will likely require you to write a function first.  
 
@@ -24,6 +101,51 @@ So first, create a function that will accomplish what you want *one* time.  Then
 Note that if you use `do()` and your function returns a data frame, the results will be a data frame.  But if you instead return some other object (like a ggplot object, or a regression object or a t-test object or something like that), then the result will be a list containing those objects.
 
 ```{r}
+#for loop, position regression [New]
+all.positions <- unique(as.factor(FantasyFootball2014$Pos))
+position.results <- list()
 
-```
+for(Pos.num in 1:length(all.positions)) {
+  this.position <- all.positions[Pos.num]
+  position.results[[Pos.num]] <- lm(PPG.2015.PPR ~ DP, data = FantasyFootball2014[FantasyFootball2014$Pos == this.position, ])
+}
+
+lapply(position.results, summary)
+levels(as.factor(FantasyFootball2014$Pos)) # For Order
+
+
+
+#################################### HAD ALOT OF DIFFICULTY WITH THIS #################################### 
+
+#Add Two Columns #Had to do extremely simple...
+
+add.two.function <- function(col.1, col.2){
+  new_data <- (col.1 + col.2)
+  return(new_data)
+}
+
+add.two.function(FantasyFootball2014$`1st`,FantasyFootball2014$`1st__1`)d
+
+
+
+
+# use group_by() and do() to get the results separately for each level of Species
+
+FantasyFootball2014 <- as.data.frame(tbl_df(FantasyFootball2014))
+
+Question3.ttest <- function(data, col1, col2){
+  ttest.results <- t.test(data[,col1], data[,col2])
+
+     t.val <- ttest.results$statistic
+    df.val <- ttest.results$parameter
+    p.val <- ttest.results$p.value
+
+    
+    results.table[results.table$Pos == species.name, c("t", "df", "p.val")] <- c(t.val, df.val, p.val)
+}
+
+
+Group.Vector <- group_by(FantasyFootball2014, as.factor(Pos)) %>%
+  do(Question3.ttest(FantasyFootball2014, "DP", "PPG.2015.PPR"))
+                                                        
 

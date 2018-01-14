@@ -125,7 +125,7 @@ seahawks <- scale_color_manual(values = c("darkblue", "green", "grey"))
 ggplot(data = AnalysisTwo.Data, aes(x = log(A2.PPG.2014), y = log(A2.PPG.2015), color = A2.Position))+geom_point()+geom_smooth(method = "lm", se = FALSE)+facet_wrap(~A2.Probowl)+xlab("Points per Game 2014 (PPR)")+ylab("Points per Game 2015 (PPR)")+ seahawks + ggtitle("2014 Fantasy Points per Game by 2015 Fantasy Points per Game") + labs(col = "Position")
 
 Bayes.A2 <- generalTestBF(A2.PPG.2015 ~ A2.Probowl + A2.PPG.2014, data = AnalysisTwo.Data)
-Bayes.A2
+Bayes.A2$coefficients
 
 #No Significant Relationship between 2014 PPG(PPR) & 2015 PPG(PPR)
 ```
