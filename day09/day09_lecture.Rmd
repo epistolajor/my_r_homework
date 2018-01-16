@@ -12,7 +12,7 @@ output: html_document
 # Loop review & practice
 
 ```{r}
-scottdata <- read.csv("scottdata/CognitionPaperFinalData.csv")
+scottdata <- read.csv("../../r_programming_bsos_winter2018/scottdata/CognitionPaperFinalData.csv")
 head(scottdata)
 colnames(scottdata)
 
@@ -203,7 +203,6 @@ minpair$allmean <- apply(minpair[, 10:17], MARGIN = 1, FUN = mean, na.rm = TRUE)
                                 #Margin = 1 (each row)
                                 #Margin = 2 (each col)
 
-na.rm)
 head(minpair)
 
 double.max(1:10)

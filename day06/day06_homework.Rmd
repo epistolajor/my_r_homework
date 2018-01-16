@@ -44,16 +44,19 @@ library(BayesFactor)
 
 BayesModels <- generalTestBF(PPR2015 ~ Pro.Bowl.2014 + Tgt.2014 + Rec.2014 + Yds.2014 + TD.2014 + First.Downs.2014 + PPR2014 + PPR.Rank.2015, data = WideRecievers)
 
+
+is.numeric(WideRecievers$PPR2015)
 #Max
-sort(BayesModels, TRUE)[1]
+A <- sort(BayesModels, TRUE)[1]
 
 #2nd Max
-sort(BayesModels, TRUE)[2]
+B <- sort(BayesModels, TRUE)[2]
 
 #3rd Max
-sort(BayesModels, TRUE)[3]
+C <- sort(BayesModels, TRUE)[3]
 
-
+X <- c(A, B, C)
+X
 "According to Bayes, there are several models and arrangements of predictors that predict 2015 Fantasy Points. Among all of these models the top 3 models for predicting 2015 Fantasy points are: 1) 2014 Pro Bowl Status + 2015 PPR Rank (BF = 468140631), 2) 2014 Pro Bowl Status + 2014 Receptions + 2015 PPR Rank (BF = 207820422), 3) 2014 Fantasy Points per Game + 2015 PPR Rank (BF = 195711607)."
 
 ```

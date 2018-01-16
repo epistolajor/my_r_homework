@@ -6,12 +6,14 @@ output: html_document
 ```{r}
 library(readxl)
 library(BayesFactor)
-library(ggplot2)
+#library(ggplot2)
 library(tidyr)
 library(dplyr)
 
 FantasyFootball2014 <- read_xlsx("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
 FantasyFootball2015 <- read_xlsx("../Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+FantasyFootball2014.Copy <- FantasyFootball2014
 
 head(FantasyFootball2014)
 ```
@@ -43,7 +45,7 @@ FantasyFootball2014$Mean.total.yards
 2. Write a small function. It can do something very, very simple.  It needs to have at least one argument.  Describe what you want it to do, write the function, and then use it on a few different cases.
 
 ```{r}
-FantasyFootball2014$PPG.2015.PPR <- FantasyFootball2015$PPR__1
+FantasyFootball2014.Copy$PPG.2015 <- FantasyFootball2015$PPR__1
 
 #Add Two Columns
 add.two.function <- function(col.1, col.2){
@@ -68,28 +70,36 @@ regression.function <- function(data, DV, predictor) {
   results.table               
 }
 
-regression.function(FantasyFootball2014, "PPG.2015.PPR", c("Att", "Per", "Yds", "TD", "Int","Rate"))
+regression.function(FantasyFootball2014.Copy, "PPG.2015", c("Att", "Per", "Yds", "TD", "Int","Rate"))
 
 ##########################
+library(BayesFactor)
+
+FantasyFootball2014.Copy$PPG.2015 <- as.numeric(FantasyFootball2014.Copy$PPG.2015)
+is.data.frame(FantasyFootball2014.Copy)
+is.numeric(FantasyFootball2014$PPG.2015)
+head(FantasyFootball2014.Copy)
+
 #Regression Bayes Function
-#regression.function.Bayes <- function(data, DV.1, predictor.1) {
- # bayes.results <- generalTestBF(get(DV.1) ~ get(predictor.1), data = data)
- #  bayes.summary <- summary(bayes.results)
- #  bayes.summary$coefficients
-  
-    # results.table <- data.frame(estimate = lm.results$coefficients[2],
-       #                        p.val = lm.summary$coefficients[2, "Pr(>|t|)"],
-       #                       adj.r2 = lm.summary$adj.r.squared) 
-  # results.table               
+#regression.bayes <- function(predictor){
+ # is.numeric(FantasyFootball2014$PPG.2015)
+ # bayes.results <- generalTestBF(PPG.2015 ~ get(predictor), data = FantasyFootball2014.Copy)
+        #Top1 <- sort(bayes.results, TRUE)[1]
+        #Top2 <- sort(bayes.results, TRUE)[2]
+        #Top3 <- sort(bayes.results, TRUE)[3]
+#  bayes.all.results <- c(Top1, Top2, Top3)
+# bayes.all.results <- as.numeric(bayes.all.results)
+# return(bayes.all.results)
+# }
+
+#is.numeric(FantasyFootball2014.Copy$PPG.2015)
+#regression.bayes(c("Att" , "Per" , "Yds" , "TD" , "Int" , "Rate"))
 
 
-#regression.function.Bayes1 <- function(data, DV.1, Pdt.1){
-  #bayes.regression <- generalTestBF(DV.1 ~ Pdt.1, data = data)
-  #return(bayes.regression)
+# generalTestBF(PPG.2015 ~ Att + Per, data = FantasyFootball2014.Copy)
+#generalTestBF(PPG.2014 ~ PPG.2015 + Downs.Played + Total.First.Down + Total.Yards + Total.Touchdowns, data = Position.Analysis)
 
-
-#regression.function.Bayes1(FantasyFootball2014, "PPG.2015.PPR", c("Att", "Per", "Yds", "TD", "Int","Rate"))
-
+"WTF. I keep getting this error that the DV is not"
 
 ```
 
@@ -107,7 +117,7 @@ position.results <- list()
 
 for(Pos.num in 1:length(all.positions)) {
   this.position <- all.positions[Pos.num]
-  position.results[[Pos.num]] <- lm(PPG.2015.PPR ~ DP, data = FantasyFootball2014[FantasyFootball2014$Pos == this.position, ])
+  position.results[[Pos.num]] <- lm(PPG.2015 ~ DP, data = FantasyFootball2014.Copy[FantasyFootball2014.Copy$Pos == this.position, ])
 }
 
 lapply(position.results, summary)
@@ -124,28 +134,44 @@ add.two.function <- function(col.1, col.2){
   return(new_data)
 }
 
-add.two.function(FantasyFootball2014$`1st`,FantasyFootball2014$`1st__1`)d
+
+FantasyFootball2014.Copy$New <- apply(FantasyFootball2014.Copy[,40:41], 1, function(x){sum(x)})
+FantasyFootball2014.Copy$New
+head(FantasyFootball2014.Copy)
+
+
+```
+
+```{r}
+# anonymous
+mysleep.wide$newcol2 <- apply(mysleep.wide[, 2:3], 1, function(x) { max(x) * 2 })
+mysleep.wide
+
+mysleep.wide$gains <- apply(mysleep.wide[, 2:3], 1, function(whatever) { whatever[2] - whatever[1] })
+mysleep.wide
+
+apply(mysleep.wide[, 2:3], 2, function(this.col) { this.col[2] - this.col[1] })
+
+apply(mysleep.wide[, 2:3], 2, mean)
+
+apply(mysleep.wide[, 2:3], 2, function(x) x*2)
+
+
+```
+
+```{r}
+mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] - z[1] })
+mysleep.wide
+
+my.z <- 2
+mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] - z }, z = 2)
+mysleep.wide
+
+mysleep.wide$post[c(3, 5, 7)] <- NA
+
+mysleep.wide
+apply(mysleep.wide[, 2:3], 1, mean, na.rm = TRUE)
 
 
 
-
-# use group_by() and do() to get the results separately for each level of Species
-
-FantasyFootball2014 <- as.data.frame(tbl_df(FantasyFootball2014))
-
-Question3.ttest <- function(data, col1, col2){
-  ttest.results <- t.test(data[,col1], data[,col2])
-
-     t.val <- ttest.results$statistic
-    df.val <- ttest.results$parameter
-    p.val <- ttest.results$p.value
-
-    
-    results.table[results.table$Pos == species.name, c("t", "df", "p.val")] <- c(t.val, df.val, p.val)
-}
-
-
-Group.Vector <- group_by(FantasyFootball2014, as.factor(Pos)) %>%
-  do(Question3.ttest(FantasyFootball2014, "DP", "PPG.2015.PPR"))
-                                                        
-
+```
