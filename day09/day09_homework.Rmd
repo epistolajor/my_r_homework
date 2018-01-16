@@ -141,37 +141,3 @@ head(FantasyFootball2014.Copy)
 
 
 ```
-
-```{r}
-# anonymous
-mysleep.wide$newcol2 <- apply(mysleep.wide[, 2:3], 1, function(x) { max(x) * 2 })
-mysleep.wide
-
-mysleep.wide$gains <- apply(mysleep.wide[, 2:3], 1, function(whatever) { whatever[2] - whatever[1] })
-mysleep.wide
-
-apply(mysleep.wide[, 2:3], 2, function(this.col) { this.col[2] - this.col[1] })
-
-apply(mysleep.wide[, 2:3], 2, mean)
-
-apply(mysleep.wide[, 2:3], 2, function(x) x*2)
-
-
-```
-
-```{r}
-mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] - z[1] })
-mysleep.wide
-
-my.z <- 2
-mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] - z }, z = 2)
-mysleep.wide
-
-mysleep.wide$post[c(3, 5, 7)] <- NA
-
-mysleep.wide
-apply(mysleep.wide[, 2:3], 1, mean, na.rm = TRUE)
-
-
-
-```
