@@ -110,13 +110,21 @@ regression.bayes <- function(predictor){
  }
 
 is.numeric(FantasyFootball2014.Copy$PPG.2015)
-predictors <- c("Att" & "Per" & "Yds" & "TD" & "Int" & "Rate")
+
+#predictors <- (FantasyFootball2014.Copy$Att + FantasyFootball2014.Copy$Per + FantasyFootball2014.Copy$Yds + FantasyFootball2014.Copy$TD + FantasyFootball2014.Copy$Int + FantasyFootball2014.Copy$Rate)
+#predictors <- (FantasyFootball2014.Copy[,15:20])
+
+predictors <- c(Att + Per + Yds + TD + Int + Rate)
+#predictors <- gather(data = FantasyFootball2014.Copy, Att:Rate)
+#Needs to refer to each column...
 
 regression.results <- sapply(predictors, regression.bayes)
 regression.results
 
 #This function will get the Bayes for each predictor individually, not all of them tested together.
 
+
+generalTestBF(PPG.2015 ~ predictors, data = as.data.frame(FantasyFootball2014.Copy))
 
 #Test1 <- generalTestBF(PPG.2015 ~ Att + Per + Yds + TD + Int + Rate, data = as.data.frame(FantasyFootball2014.Copy))
 #Test1[1]
