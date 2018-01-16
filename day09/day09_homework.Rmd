@@ -77,29 +77,51 @@ library(BayesFactor)
 
 FantasyFootball2014.Copy$PPG.2015 <- as.numeric(FantasyFootball2014.Copy$PPG.2015)
 is.data.frame(FantasyFootball2014.Copy)
-is.numeric(FantasyFootball2014$PPG.2015)
+
+is.numeric(FantasyFootball2014$PPG.2015) #with the dollar sign it pulls the fecto
+class(FantasyFootball2014.Copy$PPG.2015)
+class(FantasyFootball2014.Copy[,])
+
+
 head(FantasyFootball2014.Copy)
 
+
 #Regression Bayes Function
-#regression.bayes <- function(predictor){
- # is.numeric(FantasyFootball2014$PPG.2015)
- # bayes.results <- generalTestBF(PPG.2015 ~ get(predictor), data = FantasyFootball2014.Copy)
-        #Top1 <- sort(bayes.results, TRUE)[1]
-        #Top2 <- sort(bayes.results, TRUE)[2]
-        #Top3 <- sort(bayes.results, TRUE)[3]
-#  bayes.all.results <- c(Top1, Top2, Top3)
-# bayes.all.results <- as.numeric(bayes.all.results)
-# return(bayes.all.results)
-# }
+bayes.results <- list()
 
-#is.numeric(FantasyFootball2014.Copy$PPG.2015)
-#regression.bayes(c("Att" , "Per" , "Yds" , "TD" , "Int" , "Rate"))
+regression.bayes <- function(predictor){
+  my.formula <- as.formula(paste("PPG.2015 ~", predictor))
+  bayes.results <- generalTestBF(my.formula, data = as.data.frame(FantasyFootball2014.Copy))
+        Top1 <- sort(bayes.results, TRUE)[1]
+        Top2 <- sort(bayes.results, TRUE)[2]
+        Top3 <- sort(bayes.results, TRUE)[3]
+ bayes.all.results <- list()
+ bayes.all.results <- c(Top1, Top2, Top3)
+ bayes.all.results <- as.numeric(bayes.all.results)
+ return(bayes.all.results)
+ }
+
+is.numeric(FantasyFootball2014.Copy$PPG.2015)
+predictors <- c("Att" , "Per" , "Yds" , "TD" , "Int" , "Rate")
+
+regression.results <- sapply(predictors, regression.bayes)
 
 
-# generalTestBF(PPG.2015 ~ Att + Per, data = FantasyFootball2014.Copy)
-#generalTestBF(PPG.2014 ~ PPG.2015 + Downs.Played + Total.First.Down + Total.Yards + Total.Touchdowns, data = Position.Analysis)
 
-"WTF. I keep getting this error that the DV is not"
+#Test1 <- generalTestBF(PPG.2015 ~ Att + Per + Yds + TD + Int + Rate, data = as.data.frame(FantasyFootball2014.Copy))
+#Test1[1]
+
+T1 <- sort(Test1, TRUE)[1]
+T2 <- sort(Test1, TRUE)[2]
+T3 <- sort(Test1, TRUE)[3]
+
+Test <- list()
+Test <- c(T1, T2, T3)
+
+Test
+
+"I keep getting this error that the DV is not"
+"error: dv = stringFromFormula(formula(ls) = if this is violated you will get the error of not the right type of data"
 
 ```
 
@@ -141,3 +163,13 @@ head(FantasyFootball2014.Copy)
 
 
 ```
+
+```{r}
+#cor example
+
+for(measure in 2:n.col){
+  this.column.name <- colnames(data.frame)[measure]
+  this.corr <- cor(data.frame[,1], data.frame)
+}
+```
+
