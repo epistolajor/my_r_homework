@@ -89,23 +89,33 @@ head(FantasyFootball2014.Copy)
 #Regression Bayes Function
 bayes.results <- list()
 
+FantasyFootball2014.Copy$Att <- as.numeric(FantasyFootball2014.Copy$Att)
+FantasyFootball2014.Copy$Per <- as.numeric(FantasyFootball2014.Copy$Per)
+FantasyFootball2014.Copy$Yds <- as.numeric(FantasyFootball2014.Copy$Yds)
+FantasyFootball2014.Copy$TD <- as.numeric(FantasyFootball2014.Copy$TD)
+FantasyFootball2014.Copy$Int <- as.numeric(FantasyFootball2014.Copy$Int)
+FantasyFootball2014.Copy$Rate <- as.numeric(FantasyFootball2014.Copy$Rate)
+
 regression.bayes <- function(predictor){
   my.formula <- as.formula(paste("PPG.2015 ~", predictor))
   bayes.results <- generalTestBF(my.formula, data = as.data.frame(FantasyFootball2014.Copy))
-        Top1 <- sort(bayes.results, TRUE)[1]
-        Top2 <- sort(bayes.results, TRUE)[2]
-        Top3 <- sort(bayes.results, TRUE)[3]
- bayes.all.results <- list()
- bayes.all.results <- c(Top1, Top2, Top3)
- bayes.all.results <- as.numeric(bayes.all.results)
+  #     Top1 <- sort(bayes.results, TRUE)[1]
+  #     Top2 <- sort(bayes.results, TRUE)[2]
+  #     Top3 <- sort(bayes.results, TRUE)[3]
+ #bayes.all.results <- list()
+ #bayes.all.results <- c(Top1, Top2, Top3)
+ #bayes.all.results <- as.numeric(bayes.all.results)
  return(bayes.all.results)
+  #return(bayes.results)
  }
 
 is.numeric(FantasyFootball2014.Copy$PPG.2015)
-predictors <- c("Att" , "Per" , "Yds" , "TD" , "Int" , "Rate")
+predictors <- c("Att" & "Per" & "Yds" & "TD" & "Int" & "Rate")
 
 regression.results <- sapply(predictors, regression.bayes)
+regression.results
 
+#This function will get the Bayes for each predictor individually, not all of them tested together.
 
 
 #Test1 <- generalTestBF(PPG.2015 ~ Att + Per + Yds + TD + Int + Rate, data = as.data.frame(FantasyFootball2014.Copy))
