@@ -114,7 +114,7 @@ is.numeric(FantasyFootball2014.Copy$PPG.2015)
 #predictors <- (FantasyFootball2014.Copy$Att + FantasyFootball2014.Copy$Per + FantasyFootball2014.Copy$Yds + FantasyFootball2014.Copy$TD + FantasyFootball2014.Copy$Int + FantasyFootball2014.Copy$Rate)
 #predictors <- (FantasyFootball2014.Copy[,15:20])
 
-predictors <- c(Att + Per + Yds + TD + Int + Rate)
+predictors <- ("Att" & "Per" & "Yds" & "TD" & "Int" & "Rate")
 #predictors <- gather(data = FantasyFootball2014.Copy, Att:Rate)
 #Needs to refer to each column...
 
@@ -129,14 +129,7 @@ generalTestBF(PPG.2015 ~ predictors, data = as.data.frame(FantasyFootball2014.Co
 #Test1 <- generalTestBF(PPG.2015 ~ Att + Per + Yds + TD + Int + Rate, data = as.data.frame(FantasyFootball2014.Copy))
 #Test1[1]
 
-T1 <- sort(Test1, TRUE)[1]
-T2 <- sort(Test1, TRUE)[2]
-T3 <- sort(Test1, TRUE)[3]
 
-Test <- list()
-Test <- c(T1, T2, T3)
-
-Test
 
 "I keep getting this error that the DV is not"
 "error: dv = stringFromFormula(formula(ls) = if this is violated you will get the error of not the right type of data"

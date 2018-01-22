@@ -1,0 +1,428 @@
+---
+title: "Final Project"
+author: "Jordan Epistola"
+date: "January 16, 2018"
+output: html_document
+---
+
+**Objectives**
+
+    #1) Identify significant Fantasy Predictors for RB Success & Top 3 Regression Models (Bayes)
+    #2) Identify significant Fantasy Predictors for WR Success & Top 3 Regression Models (Bayes)
+    #3) Identify significant Fantasy Predictors for TE Success & Top 3 Regression Models (Bayes)
+    #4) Visualize Findings & Outliers in Clean Graphs for RBs, WRs & TEs
+
+
+```{r}
+library(readxl)
+library(BayesFactor)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(grid)
+library(gridExtra)
+
+FF.2014 <- read_xlsx("../my_r_homework/Datasets/Fantasy Football 2014.xlsx", skip = 2)
+FF.2015 <- read_xlsx("../my_r_homework/Datasets/Fantasy Football 2015.xlsx", skip = 2)
+
+head(FF.2014)
+```
+
+################################
+
+1) **RB Analysis** 
+    Identify top 3 Fantasy Predictors for RB Success & Top 3 Regression Models
+
+
+```{r}
+#Preparing Datasets
+Pos.Analysis <- split(FF.2014, FF.2014$Pos)
+    #str(Pos.Analysis)
+
+RB.Data <- Pos.Analysis$RB
+RB.Data$PPG.PPR.2015 <- FF.2015$PPR__1[FF.2015$Pos == "RB"]
+    #View(RB.Data)
+
+#Looking at Normality & Transformations
+ggplot(data = RB.Data, aes(x=PPG.PPR.2015)) + geom_density(fill = "indianred")
+ggplot(data = RB.Data, aes(log(x=PPG.PPR.2015))) + geom_density(fill = "indianred")
+ggplot(data = RB.Data, aes(sqrt(x=PPG.PPR.2015))) + geom_density(fill = "indianred")
+
+      "Non-transformed data displays most resemblance to normality "
+```
+
+```{r}
+#Identifying significant individual predictors for Fantasy Success
+RB.Data$PPG.PPR.2015 <- as.numeric(RB.Data$PPG.PPR.2015)
+
+#Making function for this question
+bayes.results <- list()
+
+individual.bayes.RB <- function(predictor){
+  individual.formula <- as.formula(paste("PPG.PPR.2015 ~", predictor))
+  bayes.results <- generalTestBF(individual.formula, data = as.data.frame(RB.Data))
+  return(bayes.results)
+}
+
+#Getting column names of predictors
+predictor <- as.character(c(colnames(RB.Data[,4:32])))
+typeof(predictor)
+    #predictor
+
+
+#Results
+ind.RB.result <- sapply(predictor, individual.bayes.RB)
+
+#If you want to see all Bayes Results, run function below
+#ind.RB.result
+    "1) QB.Rate : 2161583 ±0.01%"
+    "2) QB.Per  :  144626.6 ±0.01%"
+    "3) QB.TD   :    3550.632 ±0%"
+    "4) Win     :    2165.308 ±0%"
+    "5) QB.Yds  :      31.87861 ±0.01%"
+ 
+```
+
+```{r}
+#Identifying Top 3 Based Factors
+    "Due to too many predictors (function will not run) I will cut some out and leave only more relevant ones."
+
+RB.Data$Tot.1st <- (RB.Data$Rus.1st + RB.Data$Rec.1st)
+RB.Data$Tot.Yds <- (RB.Data$Rus.Yds + RB.Data$Rec.Yds)
+RB.Data$Tot.TD <- (RB.Data$Rus.TD + RB.Data$Rec.TD)
+RB.Data$Tot.Touch <- (RB.Data$Rus.Att + RB.Data$Rec.Rec)
+
+    #QB Stats
+    BayesModel.RB.1 <- generalTestBF(PPG.PPR.2015 ~ QB.Att + QB.Per + QB.Yds + QB.TD + QB.Int + QB.Rate, data = as.data.frame(RB.Data))
+         sort(BayesModel.RB.1, TRUE)[1] #QB.Att + QB.Per + QB.TD : 2161866 ±0%
+         sort(BayesModel.RB.1, TRUE)[2] #QB.Rate : 2161583 ±0.01%
+         sort(BayesModel.RB.1, TRUE)[3] #QB.Per + QB.Rate : 1023744 ±0%
+    
+    #Misc Stats
+    BayesModel.RB.2 <- generalTestBF(PPG.PPR.2015 ~ Win + Rank + DP + DP.Per, data = as.data.frame(RB.Data))                                 
+         sort(BayesModel.RB.2, TRUE)[1] #Win : 2165.308 ±0%
+         sort(BayesModel.RB.2, TRUE)[2] #Win + Rank : 1572.109 ±0%
+         sort(BayesModel.RB.2, TRUE)[3] #Win + DP.Per : 787.5764 ±0%
+    
+    #Rush Stats
+    BayesModel.RB.3 <- generalTestBF(PPG.PPR.2015 ~ Rus.Att + Rus.Yds + Rus.TD + Rus.1st, data =  as.data.frame(RB.Data))
+         sort(BayesModel.RB.3, TRUE)[1] #Rus.1st : 0.7009626 ±0%
+         sort(BayesModel.RB.3, TRUE)[2] #Rus.Yds : 0.661218 ±0%
+         sort(BayesModel.RB.3, TRUE)[3] #Rus.Att : 0.5348888 ±0%
+    
+    #Rec Stats
+    BayesModel.RB.4 <- generalTestBF(PPG.PPR.2015 ~ Rec.Tgt + Rec.Rec + Rec.Yds + Rec.TD + Rec.1st, data = as.data.frame(RB.Data))
+         sort(BayesModel.RB.4, TRUE)[1] #Rec.Yds : 0.7082027 ±0%
+         sort(BayesModel.RB.4, TRUE)[2] #Rec.Rec : 0.6940075 ±0%
+         sort(BayesModel.RB.4, TRUE)[3] #Rec.Tgt : 0.6244112 ±0%
+    
+    #Tot.Stats
+    BayesModel.RB.5 <- generalTestBF(PPG.PPR.2015 ~ Tot.1st + Tot.Yds + Tot.TD + Tot.Touch, data = as.data.frame(RB.Data))
+         sort(BayesModel.RB.5, TRUE)[1] #Tot.Yds : 0.8735947 ±0%
+         sort(BayesModel.RB.5, TRUE)[2] #Tot.1st : 0.8510412 ±0%
+         sort(BayesModel.RB.5, TRUE)[3] #Tot.Touch : 0.6361561 ±0%
+    
+    #Fantasy Football Stats
+    BayesModel.RB.6 <- generalTestBF(PPG.PPR.2015 ~ Pts.PPR.14 + PPG.PPR.14, data = as.data.frame(RB.Data))
+         sort(BayesModel.RB.6, TRUE)[1] #Pts.PPR.14 : 0.8082926 ±0%
+         sort(BayesModel.RB.6, TRUE)[2] #PPG.PPR.14 : 0.7014425 ±0%
+         sort(BayesModel.RB.6, TRUE)[3] #Pts.PPR.14 + PPG.PPR.14 : 0.3045454 ±0.01%
+    
+#Final Model
+    #Will include: QB.Att + QB.Per + QB.TD + QB.Rate + Win + Rank + DP.Per
+    BayesModel.RB.Final <- generalTestBF(PPG.PPR.2015 ~ QB.Att + QB.Per + QB.TD + QB.Rate + Win + Rank + DP.Per, data = as.data.frame(RB.Data))
+         sort(BayesModel.RB.Final, TRUE)[1] #QB.Per + Win : 10632973 ±0%
+         sort(BayesModel.RB.Final, TRUE)[2] #QB.Att + QB.Per + QB.TD + Win : 5770097 ±0%
+         sort(BayesModel.RB.Final, TRUE)[3] #QB.Att + QB.Per + Win : 4325385 ±0.01%
+```
+
+################################
+
+2) **WR Analysis** 
+    Identify significant Fantasy Predictors for WR Success & Top 3 Regression Models
+    
+    
+    ```{r}
+#Preparing Datasets
+WR.Data <- Pos.Analysis$WR
+WR.Data$PPG.PPR.2015 <- FF.2015$PPR__1[FF.2015$Pos == "WR"]
+
+#Looking at Normality & Transformations
+ggplot(data = WR.Data, aes(x=PPG.PPR.2015)) + geom_density(fill = "light blue")
+ggplot(data = WR.Data, aes(log(x=PPG.PPR.2015))) + geom_density(fill = "light blue")
+ggplot(data = WR.Data, aes(sqrt(x=PPG.PPR.2015))) + geom_density(fill = "light blue")
+
+      "Non-transformed data displays most resemblance to normality, also taught that better to use non-transformed data versus transformed if they are similar"
+```
+    
+```{r}
+#Identifying significant individual predictors for Fantasy Success
+WR.Data$PPG.PPR.2015 <- as.numeric(WR.Data$PPG.PPR.2015)
+
+#Making function for this question
+bayes.results <- list()
+
+individual.bayes.WR <- function(predictor){
+  individual.formula <- as.formula(paste("PPG.PPR.2015 ~", predictor))
+  bayes.results <- generalTestBF(individual.formula, data = as.data.frame(WR.Data))
+  return(bayes.results)
+}
+
+#Getting column names of predictors
+predictor <- as.character(c(colnames(WR.Data[,4:32])))
+typeof(predictor)
+    #predictor
+
+
+#Results
+ind.WR.result <- sapply(predictor, individual.bayes.WR)
+
+#If you want to see all Bayes Results, run function below
+#ind.WR.result
+    "QB.Rate :   8.490072e+16 ±0.01%"
+    "QB.TD :    927447042 ±0.01%"
+    "QB.Per :    76021322 ±0.01%"
+    "Win :          13458.47 ±0%"
+    "QB.Yds :        3031.057 ±0%"
+    "QB.Int :          62.07461 ±0%"
+    "Pts.PPR.14:       41.91711 ±0%"
+    "Rec.1st :         38.77611 ±0%"
+    "Pts.Std.14:       38.03 ±0%"
+    "Rec.Yds :         17.06414 ±0%"
+    "Rec.TD :          13.48207 ±0%"
+    "Rec.Rec :         13.00132 ±0%"
+    "PPG.PPR.14 :       6.771611 ±0%"
+    "PPG.Std.14 :       6.596098 ±0%"
+    
+```
+ 
+```{r}
+#Identifying Top 3 Based Factors
+    "Due to too many predictors (function will not run) I will cut some out and leave only more relevant ones."
+
+    #QB Stats
+    BayesModel.WR.1 <- generalTestBF(PPG.PPR.2015 ~ QB.Att + QB.Per + QB.Yds + QB.TD + QB.Int + QB.Rate, data = as.data.frame(WR.Data))
+         sort(BayesModel.WR.1, TRUE)[1] #QB.Rate : 8.490072e+16 ±0.01%
+         sort(BayesModel.WR.1, TRUE)[2] #QB.Per + QB.Rate : 1.095596e+16 ±0%
+         sort(BayesModel.WR.1, TRUE)[3] #QB.Yds + QB.Rate : 1.066103e+16 ±0%
+    
+    #Misc Stats
+    BayesModel.WR.2 <- generalTestBF(PPG.PPR.2015 ~ Win + Rank + DP + DP.Per, data = as.data.frame(WR.Data))                                 
+         sort(BayesModel.WR.2, TRUE)[1] #Win : 13458.47 ±0%
+         sort(BayesModel.WR.2, TRUE)[2] #Win + DP : 10093.63 ±0%
+         sort(BayesModel.WR.2, TRUE)[3] #Win + DP.Per : 9139.849 ±0%
+    
+    #Rec Stats
+    BayesModel.WR.3 <- generalTestBF(PPG.PPR.2015 ~ Rec.Tgt + Rec.Rec + Rec.Yds + Rec.TD + Rec.1st, data = as.data.frame(WR.Data))
+         sort(BayesModel.WR.3, TRUE)[1] #Rec.Tgt + Rec.1st : 75.29311 ±0%
+         sort(BayesModel.WR.3, TRUE)[2] #Rec.Tgt + Rec.Rec + Rec.1st : 40.63152 ±0%
+         sort(BayesModel.WR.3, TRUE)[3] #Rec.1st : 38.77611 ±0%
+    
+    
+    #Fantasy Football Stats
+    BayesModel.WR.4 <- generalTestBF(PPG.PPR.2015 ~ Pts.PPR.14 + PPG.PPR.14, data = as.data.frame(WR.Data))
+         sort(BayesModel.WR.4, TRUE)[1] #Pts.PPR.14 : 41.91711 ±0%
+         sort(BayesModel.WR.4, TRUE)[2] #Pts.PPR.14 + PPG.PPR.14 : 34.16017 ±0.01%
+         sort(BayesModel.WR.4, TRUE)[3] #PPG.PPR.14 : 6.771611 ±0%
+    
+#Final Model
+    #Will include: QB.Rate + QB.Per + QB.Yds + Win + DP + DP.PER + Rec.Tgt + Rec.1st + Pts.PPR.14
+    BayesModel.WR.Final <- generalTestBF(PPG.PPR.2015 ~ QB.Rate + QB.Per + QB.Yds + Win + DP + DP.Per + Rec.Tgt + Rec.1st + Pts.PPR.14, data = as.data.frame(WR.Data))
+         sort(BayesModel.WR.Final, TRUE)[1] #QB.Rate : 8.490072e+16 ±0.01%
+         sort(BayesModel.WR.Final, TRUE)[2] #QB.Rate + DP.Per : 6.08629e+16 ±0%
+         sort(BayesModel.WR.Final, TRUE)[3] #QB.Rate + DP : 4.870829e+16 ±0%
+```
+
+################################
+
+3) **TE Analysis** 
+    Identify significant Fantasy Predictors for TE Success & Top 3 Regression Models
+    
+```{r}
+#Preparing Datasets
+
+TE.Data <- Pos.Analysis$TE
+TE.Data$PPG.PPR.2015 <- FF.2015$PPR__1[FF.2015$Pos == "TE"]
+
+#Looking at Normality & Transformations
+ggplot(data = TE.Data, aes(x=PPG.PPR.2015)) + geom_density(fill = "light green")
+ggplot(data = TE.Data, aes(log(x=PPG.PPR.2015))) + geom_density(fill = "light green")
+ggplot(data = TE.Data, aes(sqrt(x=PPG.PPR.2015))) + geom_density(fill = "light green")
+
+      "These distributions are all pretty non-normal...I guess sqrt might be best but not by much"
+      
+TE.Data$PPG.PPR.2015 <- sqrt(TE.Data$PPG.PPR.2015)
+```
+
+```{r}
+#Identifying significant individual predictors for Fantasy Success
+TE.Data$PPG.PPR.2015 <- as.numeric(TE.Data$PPG.PPR.2015)
+
+#Making function for this question
+bayes.results <- list()
+
+individual.bayes.TE <- function(predictor){
+  individual.formula <- as.formula(paste("PPG.PPR.2015 ~", predictor))
+  bayes.results <- generalTestBF(individual.formula, data = as.data.frame(TE.Data))
+  return(bayes.results)
+}
+
+#Getting column names of predictors
+predictor <- as.character(c(colnames(TE.Data[,4:32])))
+typeof(predictor)
+    #predictor
+
+
+#Results
+ind.TE.result <- sapply(predictor, individual.bayes.TE)
+
+#If you want to see all Bayes Results, run function below
+#ind.TE.result
+    "QB.Rate : 699243481 ±0.01%"
+    "QB.TD : 4904.773 ±0.01%"
+    "QB.Per : 1371.197 ±0%"
+    "Win : 1299.129 ±0%"
+    "QB.Yds : 77.55192 ±0%"
+    "QB.Int : 6.435087 ±0%"
+
+```
+
+```{r}
+#Identifying Top 3 Based Factors
+    "Due to too many predictors (function will not run) I will cut some out and leave only more relevant ones."
+
+    #QB Stats
+    BayesModel.TE.1 <- generalTestBF(PPG.PPR.2015 ~ QB.Att + QB.Per + QB.Yds + QB.TD + QB.Int + QB.Rate, data = as.data.frame(TE.Data))
+         sort(BayesModel.TE.1, TRUE)[1] #QB.Rate : 699243481 ±0.01%
+         sort(BayesModel.TE.1, TRUE)[2] #QB.TD + QB.Rate : 177318555 ±0%
+         sort(BayesModel.TE.1, TRUE)[3] #QB.Att + QB.Rate : 161990479 ±0%
+    
+    #Misc Stats
+    BayesModel.TE.2 <- generalTestBF(PPG.PPR.2015 ~ Win + Rank + DP + DP.Per, data = as.data.frame(TE.Data))                                 
+         sort(BayesModel.TE.2, TRUE)[1] #Win : 1299.129 ±0%
+         sort(BayesModel.TE.2, TRUE)[2] #Win + DP : 630.9862 ±0%
+         sort(BayesModel.TE.2, TRUE)[3] #Win + DP.Per : 627.3993 ±0%
+    
+    #Rec Stats
+    BayesModel.TE.3 <- generalTestBF(PPG.PPR.2015 ~ Rec.Tgt + Rec.Rec + Rec.Yds + Rec.TD + Rec.1st, data = as.data.frame(TE.Data))
+         sort(BayesModel.TE.3, TRUE)[1] #Rec.Rec + Rec.1st : 3.664145 ±0%
+         sort(BayesModel.TE.3, TRUE)[2] #Rec.Rec + Rec.TD + Rec.1st : 2.715866 ±0%
+         sort(BayesModel.TE.3, TRUE)[3] #Rec.Tgt + Rec.1st : 2.433554 ±0%
+    
+    
+    #Fantasy Football Stats
+    BayesModel.TE.4 <- generalTestBF(PPG.PPR.2015 ~ Pts.PPR.14 + PPG.PPR.14, data = as.data.frame(TE.Data))
+         sort(BayesModel.TE.4, TRUE)[1] #Pts.PPR.14 : 1.024543 ±0%
+         sort(BayesModel.TE.4, TRUE)[2] #PPG.PPR.14 : 0.6777488 ±0%
+         sort(BayesModel.TE.4, TRUE)[3] #Pts.PPR.14 + PPG.PPR.14 : 0.5238671 ±0.01%
+    
+#Final Model
+    #Will include: QB.Rate + QB.TD + QB.ATT + Win + DP + DP.Per + Rrec.Rec + Rec.1st
+    BayesModel.TE.Final <- generalTestBF(PPG.PPR.2015 ~ QB.Rate + QB.TD + QB.Att + Win + DP + DP.Per + Rec.Rec + Rec.1st, data = as.data.frame(TE.Data))
+         sort(BayesModel.TE.Final, TRUE)[1] #QB.Rate : 699243481 ±0.01%
+         sort(BayesModel.TE.Final, TRUE)[2] #QB.Rate + QB.TD : 177318555 ±0%
+         sort(BayesModel.TE.Final, TRUE)[3] #QB.Rate + QB.Att : 161990479 ±0%
+```
+
+################################
+
+4) Visualize Findings & Outliers in Clean Graphs for RBs, WRs & TEs
+
+
+```{r}
+#Preparing Data into Long Format
+Player <- c(FF.2014$Player, FF.2015$Player)
+Pos <- c(FF.2014$Pos, FF.2015$Pos)
+Year <- c(rep("2014", 141), rep("2015", 141))
+PPG.PPR <- c(FF.2014$PPG.PPR.14, FF.2015$PPR__1)
+
+FF.2014x2015.long <- cbind.data.frame(Player, Pos, Year, PPG.PPR)
+
+#Graphing Distribution of Points & Outliers
+
+#Boxplot
+Pos.Box.2014.2015 <- ggplot(data = FF.2014x2015.long, aes(x = Pos, y = PPG.PPR, fill = Year))+geom_boxplot()+ggtitle("Fantasy Points per Game by Position")+xlab("Position")+ylab("2015 Fantasy Points per Game (PPR)")+annotate(geom = "text", x = 2.85, y = 17.55, label = "Odell Beckham Jr.", size = 3)+annotate(geom = "text", x = 2.85, y = 16.4, label = "Antonio Brown", size = 3)
+Pos.Box.2014.2015
+
+
+#Histogram
+Pos.His.2014.2015 <- ggplot(FF.2014x2015.long, aes(x = PPG.PPR, fill = Pos)) + facet_wrap(~Year)+ geom_histogram()+ggtitle("Fantasy Points per Game Distribution by Position")+xlab("Fantasy Points per Game (PPR)")+ylab("Number of Occurences")+scale_fill_discrete(name = "Position")
+Pos.His.2014.2015
+
+
+#Density
+Pos.Den.2014.2015 <- ggplot(FF.2014x2015.long, aes(x = PPG.PPR, fill = Pos)) + facet_wrap(~Year)+ geom_density(alpha = .5)+ggtitle("Fantasy Points per Game Distribution by Position")+xlab("Fantasy Points per Game (PPR)")+ylab("Number of Occurences")+scale_fill_discrete(name = "Position")
+Pos.Den.2014.2015
+
+
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+#Visual Findings of Best Regression Model for RBs
+
+      #Top RB. Models
+      "QB.Per + Win : 10632973 ±0%"
+      "QB.Att + QB.Per + QB.TD + Win : 5770097 ±0%"
+      "QB.Att + QB.Per + Win : 4325385 ±0.01%"
+
+Scatter.Top.RB <- ggplot(data = RB.Data, aes(x = Win, y = PPG.PPR.2015, size = QB.Per, color = QB.Att))+geom_point()+xlab("Number of 2014 Wins")+ylab("2015 Fantasy Points per Game(PPR)")+ggtitle("RB 2015 Points per Game by # Wins, QB Percent & QB Attempt") + labs(col = "2014 QB Attempts", size = "2014 QB Complete Percent")+geom_smooth(method = "lm", show.legend = FALSE)+scale_x_continuous(breaks = seq(1, 16, 1))
+
+Scatter.RB.Win <- ggplot(data = RB.Data, aes(x = Win, y = PPG.PPR.2015))+geom_point()+xlab("Number of 2014 Wins")+ylab("2015 PPG (PPR)")+ggtitle("15 PPG & 14 Wins")+geom_smooth(method = "lm")
+
+Scatter.RB.QB.Per <- ggplot(data = RB.Data, aes(x = QB.Per, y = PPG.PPR.2015))+geom_point()+xlab("2014 QB Completion Percentage")+ylab("2015 PPG (PPR)")+ggtitle("15 PPG & 14 QB Percent Complete")+geom_smooth(method = "lm")
+
+Scatter.RB.QB.Att <- ggplot(data = RB.Data, aes(x = QB.Att, y = PPG.PPR.2015))+geom_point()+xlab("2014 QB Attempts")+ylab("2015 PPG (PPR)")+ggtitle("15 PPG & 14 QB Att")+geom_smooth(method = "lm")
+
+Scatter.RB.QB.TD <- ggplot(data = RB.Data, aes(x = QB.TD, y = PPG.PPR.2015))+geom_point()+xlab("2014 QB Touchdowns")+ylab("2015 PPG(PPR)")+ggtitle("15 PPG & 14 QB TD")+geom_smooth(method = "lm")
+
+Scatter.Top.RB
+grid.arrange(Scatter.RB.Win, Scatter.RB.QB.Per, Scatter.RB.QB.Att, Scatter.RB.QB.TD)
+```
+
+```{r}
+#Visual Findings of Best Regression Model for WRs
+
+      #Top WR. Models
+      "QB.Rate : 8.490072e+16 ±0.01%"
+      "QB.Rate + DP.Per : 6.08629e+16 ±0%"
+      "QB.Rate + DP : 4.870829e+16 ±0%"
+
+Scatter.Top.WR <- ggplot(data = WR.Data, aes(x = QB.Rate, y = PPG.PPR.2015, size = DP.Per, color = DP))+geom_point()+xlab("2014 QB Rating")+ylab("2015 Fantasy Points per Game(PPR)")+ggtitle("WR 2015 Points per Game by QB Rating, Downs Played & Percent Downs Played") + labs(col = "2014 Downs Played", size = "2014 % Downs Played")+geom_smooth(method = "lm", show.legend = FALSE)
+
+Scatter.Top.WR.Short <- ggplot(data = WR.Data, aes(x = QB.Rate, y = PPG.PPR.2015, size = DP.Per, color = DP))+geom_point()+xlab("14 QB Rating")+ylab("15 PPG (PPR)")+ggtitle("2015 WR Points per Game by QB Rating, DP & DP%") + labs(col = "Downs Played", size = "%Downs Played")+geom_smooth(method = "lm", show.legend = FALSE)
+
+Scatter.WR.QB.Rate <- ggplot(data = WR.Data, aes(x = QB.Rate, y = PPG.PPR.2015))+geom_point()+xlab("14 QB Rate")+ylab("15 PPG (PPR)")+ggtitle("15 PPG & 14 QB Rate")+geom_smooth(method = "lm")
+
+Scatter.WR.DP.Per <- ggplot(data = WR.Data, aes(x = DP.Per, y = PPG.PPR.2015))+geom_point()+xlab("14 % Downs Played")+ylab("15 PPG (PPR)")+ggtitle("15 PPG & 14 %DP")+geom_smooth(method = "lm")
+
+Scatter.WR.DP <- ggplot(data = WR.Data, aes(x = DP, y = PPG.PPR.2015))+geom_point()+xlab("14 Downs Played")+ylab("15 PPG (PPR)")+ggtitle("15 PPG & 14 DP")+geom_smooth(method = "lm")
+
+
+Scatter.Top.WR
+grid.arrange(Scatter.Top.WR.Short, arrangeGrob(Scatter.WR.QB.Rate, Scatter.WR.DP.Per, Scatter.WR.DP, ncol = 3), heights=c(2.5/4, 1.5/4), ncol=1)
+```
+
+```{r}
+#Visual Findings of Best Regression Model for TEs
+
+      #Top TE. Models
+      "QB.Rate : 699243481 ±0.01%"
+      "QB.Rate + QB.TD : 177318555 ±0%"
+      "QB.Rate + QB.Att : 161990479 ±0%"
+
+Scatter.Top.TE <- ggplot(data = TE.Data, aes(x = QB.Rate, y = PPG.PPR.2015, size = QB.TD, color = QB.Att))+geom_point()+xlab("2014 QB Rating")+ylab("2015 Fantasy Points per Game(PPR)")+ggtitle("TE 2015 Points per Game by QB Rating, TDs & Att") + labs(col = "2014 QB Attempts", size = "2014 QB Touchdowns")+geom_smooth(method = "lm", show.legend = FALSE)
+
+Scatter.TE.QB.Rate <- ggplot(data = TE.Data, aes(x = QB.Rate, y = PPG.PPR.2015))+geom_point()+xlab("14 QB Rating")+ylab("2015 PPG (PPR)")+ggtitle("15 PPG & 14 QB Rate")+geom_smooth(method = "lm")
+
+Scatter.TE.QB.TD <- ggplot(data = TE.Data, aes(x = QB.TD, y = PPG.PPR.2015))+geom_point()+xlab("14 QB Touchdowns")+ylab("15 PPG (PPR)")+ggtitle("15 PPG & 14 QB TDs")+geom_smooth(method = "lm")
+
+Scatter.TE.QB.Att <- ggplot(data = TE.Data, aes(x = QB.Att, y = PPG.PPR.2015))+geom_point()+xlab("14 QB Attempts")+ylab("15 PPG (PPR)")+ggtitle("15 PPG & 14 QB Att")+geom_smooth(method = "lm")
+
+
+Scatter.Top.TE
+grid.arrange(Scatter.TE.QB.Rate, arrangeGrob(Scatter.TE.QB.TD, Scatter.TE.QB.Att, ncol = 2), heights=c(2.5/4, 2/4), ncol=1)
+```

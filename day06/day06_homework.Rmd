@@ -11,7 +11,10 @@ library(readxl)
 FantasyFootball2014 <- read_excel("../Datasets/Fantasy Football 2014.xlsx", skip = 2)
 FantasyFootball2015 <- read_excel("../Datasets/Fantasy Football 2015.xlsx", skip = 2)
 
-WideRecievers <- cbind.data.frame(FantasyFootball2014$Player[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$PB[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$DP[FantasyFootball2014$Pos == "WR"],FantasyFootball2014$Tgt[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$Rec[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$Yds__1[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$TD__1[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$`1st__1`[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$PPR__1[FantasyFootball2014$Pos == "WR"],FantasyFootball2015$PPR[FantasyFootball2015$Pos == "WR"], FantasyFootball2015$PPR__1[FantasyFootball2015$Pos == "WR"])
+WideRecievers <- cbind.data.frame(FantasyFootball2014$Player)
+  
+  
+  cbind.data.frame(FantasyFootball2014$Player[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$PB[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$DP[FantasyFootball2014$Pos == "WR"],FantasyFootball2014$Tgt[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$Rec[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$Yds__1[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$TD__1[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$`1st__1`[FantasyFootball2014$Pos == "WR"], FantasyFootball2014$PPR__1[FantasyFootball2014$Pos == "WR"],FantasyFootball2015$PPR[FantasyFootball2015$Pos == "WR"], FantasyFootball2015$PPR__1[FantasyFootball2015$Pos == "WR"])
                    
 colnames(WideRecievers) <- c("Player", "Pro.Bowl.2014", "Downs.Played.2014", "Tgt.2014", "Rec.2014","Yds.2014","TD.2014","First.Downs.2014","PPR2014","PPR.Rank.2015","PPR2015")
 head(WideRecievers)
@@ -44,6 +47,7 @@ library(BayesFactor)
 
 BayesModels <- generalTestBF(PPR2015 ~ Pro.Bowl.2014 + Tgt.2014 + Rec.2014 + Yds.2014 + TD.2014 + First.Downs.2014 + PPR2014 + PPR.Rank.2015, data = WideRecievers)
 
+typeof(BayesModels)
 
 is.numeric(WideRecievers$PPR2015)
 #Max

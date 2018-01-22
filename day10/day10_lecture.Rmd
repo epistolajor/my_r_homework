@@ -160,6 +160,7 @@ my.plots[["versicolor"]]
 #  print(ggplot(myris.subset, aes(Sepal.Length, Sepal.Width)) + geom_point() + geom_smooth(method = "lm") + labs(title = this.species))
 
 # faceting: sometimes a good alternative to looping (with plots)
+#################################################### GRID-ARRANGE HOW TO PUT MANY PLOTS ON SINGLE PAGE, CLEANLY)
 
 ggplot(myris, aes(Sepal.Length, Sepal.Width)) + geom_point() + geom_smooth(method = "lm") + facet_wrap(~ Species)
 
